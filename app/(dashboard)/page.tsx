@@ -80,18 +80,18 @@ const certifications = [
 ]
 
 const overdueItems = [
-  { type: "NC", ref: "NC-2026-020", title: "Matière première hors spécifications", due: "il y a 3 jours", href: "/non-conformances", color: "bg-red-100 text-red-600" },
-  { type: "CAPA", ref: "CAPA-2026-011", title: "Mise à jour étiquetage produits finis", due: "il y a 1 jour", href: "/capa", color: "bg-amber-100 text-amber-600" },
-  { type: "Audit", ref: "AUD-2026-012", title: "Audit interne ISO 9001 - Production", due: "demain", href: "/audits", color: "bg-blue-100 text-blue-600" },
-  { type: "Doc", ref: "PRO-ENV-005", title: "Révision procédure gestion des déchets", due: "dans 5 jours", href: "/documents", color: "bg-purple-100 text-purple-600" },
+  { type: "NC",    ref: "NC-2026-020",    title: "Matière première hors spécifications",    due: "il y a 3 jours", href: "/non-conformances/1", color: "bg-red-100 text-red-600"    },
+  { type: "CAPA",  ref: "CAPA-2026-011",  title: "Mise à jour étiquetage produits finis",   due: "il y a 1 jour",  href: "/capa/1",             color: "bg-amber-100 text-amber-600" },
+  { type: "Audit", ref: "AUD-2026-012",   title: "Audit interne ISO 9001 — Production",     due: "demain",         href: "/audits/1",           color: "bg-blue-100 text-blue-600"   },
+  { type: "Doc",   ref: "PRO-ENV-005",    title: "Révision procédure gestion des déchets",  due: "dans 5 jours",   href: "/documents",          color: "bg-purple-100 text-purple-600"},
 ]
 
 const recentActivities = [
-  { id: 1, type: "nc", title: "NC-2026-023 créée", description: "Non-conformité sur le processus de soudage", time: "Il y a 2 heures", user: "Jean Dupont", color: "bg-red-100 text-red-600" },
-  { id: 2, type: "capa", title: "CAPA-2026-015 mise à jour", description: "Action corrective vérifiée et fermée", time: "Il y a 4 heures", user: "Marie Martin", color: "bg-green-100 text-green-600" },
-  { id: 3, type: "document", title: "DOC-PRO-012 approuvé", description: "Procédure de contrôle qualité v2.1", time: "Hier", user: "Pierre Bernard", color: "bg-blue-100 text-blue-600" },
-  { id: 4, type: "audit", title: "Audit planifié", description: "Audit interne ISO 9001 - Département Production", time: "Hier", user: "Sophie Moreau", color: "bg-purple-100 text-purple-600" },
-  { id: 5, type: "complaint", title: "Réclamation REC-2026-008 résolue", description: "Réclamation client traitée et clôturée", time: "Il y a 2 jours", user: "Luc Petit", color: "bg-orange-100 text-orange-600" },
+  { id: 1, type: "nc",       href: "/non-conformances/1", title: "NC-2026-023 créée",              description: "Non-conformité sur le processus de soudage",         time: "Il y a 2 heures", user: "Jean Dupont",   color: "bg-red-100 text-red-600"     },
+  { id: 2, type: "capa",     href: "/capa/1",             title: "CAPA-2026-015 mise à jour",      description: "Action corrective vérifiée et fermée",              time: "Il y a 4 heures", user: "Marie Martin",  color: "bg-green-100 text-green-600" },
+  { id: 3, type: "document", href: "/documents/1",        title: "DOC-PRO-012 approuvé",           description: "Procédure de contrôle qualité v2.1",                time: "Hier",            user: "Pierre Bernard",color: "bg-blue-100 text-blue-600"   },
+  { id: 4, type: "audit",    href: "/audits/1",           title: "Audit planifié",                 description: "Audit interne ISO 9001 — Département Production",   time: "Hier",            user: "Sophie Moreau", color: "bg-purple-100 text-purple-600"},
+  { id: 5, type: "complaint",href: "/complaints/1",       title: "Réclamation REC-2026-008 résolue",description: "Réclamation client traitée et clôturée",           time: "Il y a 2 jours",  user: "Luc Petit",     color: "bg-orange-100 text-orange-600"},
 ]
 
 const activityIcon: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -118,10 +118,10 @@ export default function DashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Non-Conformités ouvertes" value={14} icon={AlertTriangle} iconColor="text-red-600" iconBg="bg-red-50" change="+3 ce mois" trend="up" />
-        <StatCard title="CAPA en attente" value={20} icon={CheckSquare} iconColor="text-amber-600" iconBg="bg-amber-50" change="-2 ce mois" trend="down" />
-        <StatCard title="Audits à venir" value={3} icon={ClipboardList} iconColor="text-blue-600" iconBg="bg-blue-50" hint="prochains 30 jours" />
-        <StatCard title="Documents à réviser" value={7} icon={FileText} iconColor="text-purple-600" iconBg="bg-purple-50" change="+1 ce mois" trend="up" />
+        <Link href="/non-conformances"><StatCard title="Non-Conformités ouvertes" value={14} icon={AlertTriangle} iconColor="text-red-600" iconBg="bg-red-50" change="+3 ce mois" trend="up" /></Link>
+        <Link href="/capa"><StatCard title="CAPA en attente" value={20} icon={CheckSquare} iconColor="text-amber-600" iconBg="bg-amber-50" change="-2 ce mois" trend="down" /></Link>
+        <Link href="/audits"><StatCard title="Audits à venir" value={3} icon={ClipboardList} iconColor="text-blue-600" iconBg="bg-blue-50" hint="prochains 30 jours" /></Link>
+        <Link href="/documents"><StatCard title="Documents à réviser" value={7} icon={FileText} iconColor="text-purple-600" iconBg="bg-purple-50" change="+1 ce mois" trend="up" /></Link>
       </div>
 
       {/* Charts Row 1 */}
@@ -313,7 +313,7 @@ export default function DashboardPage() {
               {recentActivities.map((activity) => {
                 const Icon = activityIcon[activity.type] ?? Activity
                 return (
-                  <div key={activity.id} className="flex items-start gap-3">
+                  <Link key={activity.id} href={activity.href} className="flex items-start gap-3 rounded-lg p-1.5 -mx-1.5 hover:bg-gray-50 transition-colors">
                     <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${activity.color}`}>
                       <Icon className="h-4 w-4" />
                     </div>
@@ -327,7 +327,8 @@ export default function DashboardPage() {
                         <span className="text-xs text-gray-500">{activity.user}</span>
                       </div>
                     </div>
-                  </div>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-gray-300 mt-2.5" />
+                  </Link>
                 )
               })}
             </div>
