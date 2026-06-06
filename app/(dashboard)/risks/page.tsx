@@ -1,87 +1,52 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, Search, ShieldAlert } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+  Plus,
+  ShieldAlert,
+  Eye,
+  RefreshCw,
+  Download,
+  AlertOctagon,
+  Flame,
+  AlertTriangle,
+  ShieldCheck,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { PageHeader } from "@/components/ui/page-header"
+import { StatCard } from "@/components/ui/stat-card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
 
-const mockRisks = [
-  {
-    id: "1",
-    reference: "R-2024-045",
-    title: "Rupture d'approvisionnement matières premières",
-    category: "Supply Chain",
-    probability: 3,
-    impact: 4,
-    owner: "Pierre Bernard",
-    status: "active",
-    treatment: "Diversification des fournisseurs",
-  },
-  {
-    id: "2",
-    reference: "R-2024-044",
-    title: "Panne équipement critique de production",
-    category: "Production",
-    probability: 2,
-    impact: 5,
-    owner: "Jean Dupont",
-    status: "active",
-    treatment: "Plan de maintenance préventive",
-  },
-  {
-    id: "3",
-    reference: "R-2024-043",
-    title: "Contamination produit chimique",
-    category: "HSE",
-    probability: 1,
-    impact: 5,
-    owner: "Luc Petit",
-    status: "treated",
-    treatment: "Procédure de manipulation et EPI renforcés",
-  },
-  {
-    id: "4",
-    reference: "R-2024-042",
-    title: "Non-conformité documentaire lors audit",
-    category: "Qualité",
-    probability: 3,
-    impact: 3,
-    owner: "Sophie Moreau",
-    status: "active",
-    treatment: "Révision système documentaire",
-  },
-  {
-    id: "5",
-    reference: "R-2024-041",
-    title: "Accident de travail chute de hauteur",
-    category: "HSE",
-    probability: 2,
-    impact: 5,
-    owner: "Marie Martin",
-    status: "treated",
-    treatment: "Formation et équipements anti-chute",
-  },
-  {
-    id: "6",
-    reference: "R-2024-040",
-    title: "Dépassement des niveaux sonores",
-    category: "HSE",
-    probability: 4,
-    impact: 2,
-    owner: "Luc Petit",
-    status: "monitored",
-    treatment: "Port obligatoire des protections auditives",
-  },
+interface Risk {
+  id: string
+  reference: string
+  title: string
+  category: string
+  probability: number
+  impact: number
+  owner: string
+  status: "active" | "treated" | "monitored"
+  treatment: string
+}
+
+const mockRisks: Risk[] = [
+  { id: "1", reference: "R-2024-045", title: "Rupture d'approvisionnement matières premières", category: "Supply Chain", probability: 3, impact: 4, owner: "Pierre Bernard", status: "active", treatment: "Diversification des fournisseurs" },
+  { id: "2", reference: "R-2024-044", title: "Panne équipement critique de production", category: "Production", probability: 2, impact: 5, owner: "Jean Dupont", status: "active", treatment: "Plan de maintenance préventive" },
+  { id: "3", reference: "R-2024-043", title: "Contamination produit chimique", category: "HSE", probability: 1, impact: 5, owner: "Luc Petit", status: "treated", treatment: "Procédure de manipulation et EPI renforcés" },
+  { id: "4", reference: "R-2024-042", title: "Non-conformité documentaire lors audit", category: "Qualité", probability: 3, impact: 3, owner: "Sophie Moreau", status: "active", treatment: "Révision système documentaire" },
+  { id: "5", reference: "R-2024-041", title: "Accident de travail chute de hauteur", category: "HSE", probability: 2, impact: 5, owner: "Marie Martin", status: "treated", treatment: "Formation et équipements anti-chute" },
+  { id: "6", reference: "R-2024-040", title: "Dépassement des niveaux sonores", category: "HSE", probability: 4, impact: 2, owner: "Luc Petit", status: "monitored", treatment: "Port obligatoire des protections auditives" },
+  { id: "7", reference: "R-2024-039", title: "Cyberattaque sur système de production", category: "SI", probability: 3, impact: 5, owner: "Marc Leroy", status: "active", treatment: "Renforcement pare-feu et sauvegardes" },
+  { id: "8", reference: "R-2024-038", title: "Erreur de dosage automate", category: "Production", probability: 2, impact: 4, owner: "Jean Dupont", status: "monitored", treatment: "Contrôle métrologique renforcé" },
+  { id: "9", reference: "R-2024-037", title: "Départ de personnel clé", category: "RH", probability: 3, impact: 3, owner: "Sophie Moreau", status: "active", treatment: "Plan de succession et documentation" },
+  { id: "10", reference: "R-2024-036", title: "Pollution accidentelle des sols", category: "HSE", probability: 1, impact: 4, owner: "Luc Petit", status: "treated", treatment: "Bacs de rétention et procédure d'urgence" },
+  { id: "11", reference: "R-2024-035", title: "Retard de livraison client majeur", category: "Supply Chain", probability: 4, impact: 3, owner: "Pierre Bernard", status: "active", treatment: "Stock de sécurité et planification" },
+  { id: "12", reference: "R-2024-034", title: "Défaillance système de ventilation", category: "Production", probability: 2, impact: 2, owner: "Claire Durand", status: "monitored", treatment: "Maintenance et contrôles périodiques" },
+  { id: "13", reference: "R-2024-033", title: "Incendie zone de stockage solvants", category: "HSE", probability: 1, impact: 5, owner: "Marie Martin", status: "treated", treatment: "Système d'extinction et zonage ATEX" },
+  { id: "14", reference: "R-2024-032", title: "Obsolescence d'un équipement de mesure", category: "Qualité", probability: 3, impact: 2, owner: "Marie Martin", status: "monitored", treatment: "Plan de renouvellement métrologie" },
 ]
 
 function getRiskLevel(probability: number, impact: number): string {
@@ -114,7 +79,6 @@ function getRiskLabel(level: string): string {
 
 // Risk matrix component
 function RiskMatrix() {
-  const labels = ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé"]
   const colors = [
     // Row 5 (impact highest)
     ["bg-yellow-200", "bg-orange-300", "bg-red-400", "bg-red-500", "bg-red-600"],
@@ -196,25 +160,118 @@ function RiskMatrix() {
 }
 
 export default function RisksPage() {
-  const [search, setSearch] = useState("")
+  const router = useRouter()
 
-  const filtered = mockRisks.filter((r) =>
-    r.title.toLowerCase().includes(search.toLowerCase()) ||
-    r.reference.toLowerCase().includes(search.toLowerCase())
-  )
+  const critical = mockRisks.filter((r) => getRiskLevel(r.probability, r.impact) === "critical").length
+  const high = mockRisks.filter((r) => getRiskLevel(r.probability, r.impact) === "high").length
+  const medium = mockRisks.filter((r) => getRiskLevel(r.probability, r.impact) === "medium").length
+  const low = mockRisks.filter((r) => getRiskLevel(r.probability, r.impact) === "low").length
+
+  const columns: DataTableColumn<Risk>[] = [
+    {
+      key: "reference",
+      header: "Référence",
+      sortValue: (r) => r.reference,
+      cell: (r) => <span className="font-mono text-xs text-gray-500">{r.reference}</span>,
+    },
+    {
+      key: "title",
+      header: "Risque",
+      sortValue: (r) => r.title,
+      cell: (r) => (
+        <div className="flex items-center gap-2">
+          <ShieldAlert className="h-4 w-4 shrink-0 text-gray-400" />
+          <span className="text-sm font-medium text-gray-900">{r.title}</span>
+        </div>
+      ),
+    },
+    {
+      key: "category",
+      header: "Catégorie",
+      sortValue: (r) => r.category,
+      hideOnMobile: true,
+      cell: (r) => <Badge variant="outline" className="text-xs">{r.category}</Badge>,
+    },
+    {
+      key: "probability",
+      header: "Prob.",
+      sortValue: (r) => r.probability,
+      align: "center",
+      hideOnMobile: true,
+      cell: (r) => (
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-xs font-bold">
+          {r.probability}
+        </span>
+      ),
+    },
+    {
+      key: "impact",
+      header: "Impact",
+      sortValue: (r) => r.impact,
+      align: "center",
+      hideOnMobile: true,
+      cell: (r) => (
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-xs font-bold">
+          {r.impact}
+        </span>
+      ),
+    },
+    {
+      key: "score",
+      header: "Score",
+      sortValue: (r) => r.probability * r.impact,
+      align: "center",
+      cell: (r) => {
+        const level = getRiskLevel(r.probability, r.impact)
+        const score = r.probability * r.impact
+        return (
+          <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-white text-xs font-bold ${getRiskColor(level)}`}>
+            {score}
+          </span>
+        )
+      },
+    },
+    {
+      key: "level",
+      header: "Niveau",
+      sortValue: (r) => r.probability * r.impact,
+      cell: (r) => {
+        const level = getRiskLevel(r.probability, r.impact)
+        return (
+          <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+            level === "critical" ? "bg-red-100 text-red-700" :
+            level === "high" ? "bg-orange-100 text-orange-700" :
+            level === "medium" ? "bg-yellow-100 text-yellow-700" :
+            "bg-green-100 text-green-700"
+          }`}>
+            {getRiskLabel(level)}
+          </span>
+        )
+      },
+    },
+    {
+      key: "owner",
+      header: "Responsable",
+      sortValue: (r) => r.owner,
+      hideOnMobile: true,
+      cell: (r) => <span className="text-sm text-gray-600">{r.owner}</span>,
+    },
+  ]
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Registre des Risques</h2>
-          <p className="text-sm text-gray-500 mt-1">Identification et maîtrise des risques</p>
-        </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="mr-2 h-4 w-4" />
-          Nouveau risque
-        </Button>
-      </div>
+      <PageHeader
+        title="Registre des Risques"
+        description="Identification et maîtrise des risques"
+        icon={ShieldAlert}
+      >
+        <Link href="/risks">
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="mr-2 h-4 w-4" />
+            Nouveau risque
+          </Button>
+        </Link>
+      </PageHeader>
 
       {/* Risk Matrix */}
       <Card>
@@ -228,113 +285,62 @@ export default function RisksPage() {
       </Card>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: "Critiques", count: mockRisks.filter(r => getRiskLevel(r.probability, r.impact) === "critical").length, color: "text-red-600", bg: "bg-red-50" },
-          { label: "Élevés", count: mockRisks.filter(r => getRiskLevel(r.probability, r.impact) === "high").length, color: "text-orange-600", bg: "bg-orange-50" },
-          { label: "Modérés", count: mockRisks.filter(r => getRiskLevel(r.probability, r.impact) === "medium").length, color: "text-yellow-600", bg: "bg-yellow-50" },
-          { label: "Faibles", count: mockRisks.filter(r => getRiskLevel(r.probability, r.impact) === "low").length, color: "text-green-600", bg: "bg-green-50" },
-        ].map((stat) => (
-          <Card key={stat.label} className={stat.bg}>
-            <CardContent className="p-4 text-center">
-              <p className={`text-2xl font-bold ${stat.color}`}>{stat.count}</p>
-              <p className="text-sm text-gray-600">{stat.label}</p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard title="Critiques" value={critical} icon={AlertOctagon} iconColor="text-red-600" iconBg="bg-red-50" />
+        <StatCard title="Élevés" value={high} icon={Flame} iconColor="text-orange-600" iconBg="bg-orange-50" />
+        <StatCard title="Modérés" value={medium} icon={AlertTriangle} iconColor="text-yellow-600" iconBg="bg-yellow-50" />
+        <StatCard title="Faibles" value={low} icon={ShieldCheck} iconColor="text-green-600" iconBg="bg-green-50" />
       </div>
-
-      {/* Search */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Rechercher un risque..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Risks Table */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-gray-500">
-            {filtered.length} risque{filtered.length !== 1 ? "s" : ""}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50">
-                <TableHead>Référence</TableHead>
-                <TableHead>Risque</TableHead>
-                <TableHead>Catégorie</TableHead>
-                <TableHead className="text-center">Prob.</TableHead>
-                <TableHead className="text-center">Impact</TableHead>
-                <TableHead className="text-center">Score</TableHead>
-                <TableHead>Niveau</TableHead>
-                <TableHead>Responsable</TableHead>
-                <TableHead>Traitement</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((risk) => {
-                const level = getRiskLevel(risk.probability, risk.impact)
-                const score = risk.probability * risk.impact
-                return (
-                  <TableRow key={risk.id} className="hover:bg-gray-50/50">
-                    <TableCell className="font-mono text-xs text-gray-500">
-                      {risk.reference}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <ShieldAlert className="h-4 w-4 text-gray-400 shrink-0" />
-                        <span className="font-medium text-gray-900 text-sm">{risk.title}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">{risk.category}</Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-xs font-bold">
-                        {risk.probability}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-xs font-bold">
-                        {risk.impact}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-white text-xs font-bold ${getRiskColor(level)}`}>
-                        {score}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        level === "critical" ? "bg-red-100 text-red-700" :
-                        level === "high" ? "bg-orange-100 text-orange-700" :
-                        level === "medium" ? "bg-yellow-100 text-yellow-700" :
-                        "bg-green-100 text-green-700"
-                      }`}>
-                        {getRiskLabel(level)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600">{risk.owner}</TableCell>
-                    <TableCell className="text-sm text-gray-500 max-w-[200px] truncate">
-                      {risk.treatment}
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-          </div>
+        <CardContent className="p-4">
+          <DataTable
+            data={mockRisks}
+            columns={columns}
+            getRowId={(r) => r.id}
+            searchPlaceholder="Rechercher par titre ou référence..."
+            searchAccessor={(r) => `${r.title} ${r.reference} ${r.owner} ${r.category}`}
+            filters={[
+              {
+                key: "category",
+                label: "Catégorie",
+                value: (r) => r.category,
+                options: [
+                  { value: "Supply Chain", label: "Supply Chain" },
+                  { value: "Production", label: "Production" },
+                  { value: "HSE", label: "HSE" },
+                  { value: "Qualité", label: "Qualité" },
+                  { value: "SI", label: "SI" },
+                  { value: "RH", label: "RH" },
+                ],
+              },
+              {
+                key: "level",
+                label: "Niveau",
+                value: (r) => getRiskLevel(r.probability, r.impact),
+                options: [
+                  { value: "critical", label: "Critique" },
+                  { value: "high", label: "Élevé" },
+                  { value: "medium", label: "Modéré" },
+                  { value: "low", label: "Faible" },
+                ],
+              },
+            ]}
+            onRowClick={(r) => router.push(`/risks/${r.id}`)}
+            rowActions={(r) => (
+              <div className="flex items-center justify-end gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/risks/${r.id}`)}>
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            bulkActions={[
+              { label: "Réévaluer", icon: RefreshCw, onClick: () => {}, variant: "outline" },
+              { label: "Exporter", icon: Download, onClick: () => {}, variant: "outline" },
+            ]}
+            emptyMessage="Aucun risque."
+          />
         </CardContent>
       </Card>
     </div>

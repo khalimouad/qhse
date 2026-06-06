@@ -16,17 +16,60 @@ import {
   ChevronRight,
   Shield,
   X,
+  ListTodo,
+  MessageSquareWarning,
+  Truck,
+  GraduationCap,
+  Wrench,
 } from "lucide-react"
 
-const navigation = [
-  { name: "Tableau de bord", href: "/", icon: LayoutDashboard },
-  { name: "Documents", href: "/documents", icon: FileText },
-  { name: "Non-Conformités", href: "/non-conformances", icon: AlertTriangle },
-  { name: "CAPA", href: "/capa", icon: CheckSquare },
-  { name: "Audits", href: "/audits", icon: ClipboardList },
-  { name: "Risques", href: "/risks", icon: ShieldAlert },
-  { name: "Indicateurs", href: "/indicators", icon: BarChart2 },
+interface NavItem {
+  name: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+}
+
+interface NavGroup {
+  title: string
+  items: NavItem[]
+}
+
+const navGroups: NavGroup[] = [
+  {
+    title: "Pilotage",
+    items: [
+      { name: "Tableau de bord", href: "/", icon: LayoutDashboard },
+      { name: "Indicateurs", href: "/indicators", icon: BarChart2 },
+      { name: "Plan d'actions", href: "/action-plan", icon: ListTodo },
+    ],
+  },
+  {
+    title: "Qualité",
+    items: [
+      { name: "Documents", href: "/documents", icon: FileText },
+      { name: "Non-Conformités", href: "/non-conformances", icon: AlertTriangle },
+      { name: "CAPA", href: "/capa", icon: CheckSquare },
+      { name: "Réclamations", href: "/complaints", icon: MessageSquareWarning },
+      { name: "Audits", href: "/audits", icon: ClipboardList },
+    ],
+  },
+  {
+    title: "Risques & Conformité",
+    items: [
+      { name: "Risques", href: "/risks", icon: ShieldAlert },
+      { name: "Fournisseurs", href: "/suppliers", icon: Truck },
+    ],
+  },
+  {
+    title: "Ressources",
+    items: [
+      { name: "Formations", href: "/training", icon: GraduationCap },
+      { name: "Équipements", href: "/equipment", icon: Wrench },
+    ],
+  },
 ]
+
+const allItems = navGroups.flatMap((g) => g.items)
 
 interface SidebarProps {
   mobileOpen?: boolean
@@ -37,40 +80,77 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
 
-  // Close mobile sidebar on route change
   useEffect(() => {
     onMobileClose?.()
   }, [pathname]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const navItems = (
-    <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
-      {navigation.map((item) => {
-        const isActive =
-          item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)
-        return (
-          <Link
-            key={item.name}
-            href={item.href}
-            className={cn(
-              "flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              isActive
-                ? "bg-blue-600 text-white"
-                : "text-gray-300 hover:bg-gray-700 hover:text-white",
-              collapsed && "justify-center px-2"
-            )}
-            title={collapsed ? item.name : undefined}
-          >
-            <item.icon className={cn("h-5 w-5 shrink-0", !collapsed && "mr-3")} />
-            {!collapsed && <span className="truncate">{item.name}</span>}
-          </Link>
-        )
-      })}
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href)
+
+  const renderItem = (item: NavItem) => (
+    <Link
+      key={item.name}
+      href={item.href}
+      className={cn(
+        "flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+        isActive(item.href)
+          ? "bg-blue-600 text-white shadow-sm"
+          : "text-gray-300 hover:bg-gray-800 hover:text-white",
+        collapsed && "justify-center px-2"
+      )}
+      title={collapsed ? item.name : undefined}
+    >
+      <item.icon className={cn("h-5 w-5 shrink-0", !collapsed && "mr-3")} />
+      {!collapsed && <span className="truncate">{item.name}</span>}
+    </Link>
+  )
+
+  const groupedNav = (
+    <nav className="flex-1 space-y-4 overflow-y-auto p-3">
+      {navGroups.map((group) => (
+        <div key={group.title} className="space-y-1">
+          {!collapsed && (
+            <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+              {group.title}
+            </p>
+          )}
+          {group.items.map(renderItem)}
+        </div>
+      ))}
+    </nav>
+  )
+
+  // Flat nav (mobile drawer always expanded)
+  const flatNav = (
+    <nav className="flex-1 space-y-4 overflow-y-auto p-3">
+      {navGroups.map((group) => (
+        <div key={group.title} className="space-y-1">
+          <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+            {group.title}
+          </p>
+          {group.items.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={cn(
+                "flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                isActive(item.href)
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-gray-300 hover:bg-gray-800 hover:text-white"
+              )}
+            >
+              <item.icon className="mr-3 h-5 w-5 shrink-0" />
+              <span className="truncate">{item.name}</span>
+            </Link>
+          ))}
+        </div>
+      ))}
     </nav>
   )
 
   return (
     <>
-      {/* Mobile overlay backdrop */}
+      {/* Mobile overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
@@ -85,20 +165,20 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex h-16 items-center justify-between border-b border-gray-700 px-4">
+        <div className="flex h-16 items-center justify-between border-b border-gray-800 px-4">
           <div className="flex items-center">
-            <Shield className="h-8 w-8 text-blue-400 shrink-0" />
-            <span className="ml-3 text-lg font-bold text-white truncate">QualiSafe</span>
+            <Shield className="h-8 w-8 shrink-0 text-blue-400" />
+            <span className="ml-3 truncate text-lg font-bold">QualiSafe</span>
           </div>
           <button
             onClick={onMobileClose}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-700 hover:text-white"
+            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-        {navItems}
-        <div className="border-t border-gray-700 p-4">
+        {flatNav}
+        <div className="border-t border-gray-800 p-4">
           <p className="text-xs text-gray-500">QHSE Manager v1.0</p>
         </div>
       </aside>
@@ -106,18 +186,18 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "relative hidden md:flex flex-col bg-gray-900 text-white transition-all duration-300 ease-in-out",
+          "relative hidden flex-col bg-gray-900 text-white transition-all duration-300 ease-in-out md:flex",
           collapsed ? "w-16" : "w-64"
         )}
       >
-        <div className="flex h-16 items-center border-b border-gray-700 px-4">
-          <Shield className="h-8 w-8 text-blue-400 shrink-0" />
+        <div className="flex h-16 items-center border-b border-gray-800 px-4">
+          <Shield className="h-8 w-8 shrink-0 text-blue-400" />
           {!collapsed && (
-            <span className="ml-3 text-lg font-bold text-white truncate">QualiSafe</span>
+            <span className="ml-3 truncate text-lg font-bold">QualiSafe</span>
           )}
         </div>
 
-        {navItems}
+        {groupedNav}
 
         <button
           onClick={() => setCollapsed(!collapsed)}
@@ -131,7 +211,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
         </button>
 
         {!collapsed && (
-          <div className="border-t border-gray-700 p-4">
+          <div className="border-t border-gray-800 p-4">
             <p className="text-xs text-gray-500">QHSE Manager v1.0</p>
           </div>
         )}
@@ -139,3 +219,5 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
     </>
   )
 }
+
+export { allItems as navItems }

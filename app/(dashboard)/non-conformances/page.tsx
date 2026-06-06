@@ -1,108 +1,76 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
-import { Plus, Search, AlertTriangle, Eye } from "lucide-react"
+import {
+  Plus,
+  AlertTriangle,
+  Eye,
+  Trash2,
+  UserPlus,
+  CheckCircle2,
+  AlertCircle,
+  CircleDot,
+  Clock,
+  CheckCheck,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { PageHeader } from "@/components/ui/page-header"
+import { StatCard } from "@/components/ui/stat-card"
+import { Card, CardContent } from "@/components/ui/card"
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
 
-const mockNCs = [
-  {
-    id: "1",
-    reference: "NC-2024-023",
-    title: "Défaut de soudage sur pièce P-456",
-    status: "open",
-    severity: "major",
-    source: "Production",
-    detectedBy: "Jean Dupont",
-    detectedAt: new Date("2024-06-01"),
-    dueDate: new Date("2024-07-01"),
-  },
-  {
-    id: "2",
-    reference: "NC-2024-022",
-    title: "Non-conformité documentaire procédure HSE",
-    status: "in_progress",
-    severity: "minor",
-    source: "Audit interne",
-    detectedBy: "Marie Martin",
-    detectedAt: new Date("2024-05-20"),
-    dueDate: new Date("2024-06-20"),
-  },
-  {
-    id: "3",
-    reference: "NC-2024-021",
-    title: "Dépassement des délais de calibration",
-    status: "closed",
-    severity: "major",
-    source: "Contrôle qualité",
-    detectedBy: "Pierre Bernard",
-    detectedAt: new Date("2024-05-10"),
-    dueDate: new Date("2024-06-10"),
-  },
-  {
-    id: "4",
-    reference: "NC-2024-020",
-    title: "Matière première hors spécifications",
-    status: "open",
-    severity: "critical",
-    source: "Réception",
-    detectedBy: "Sophie Moreau",
-    detectedAt: new Date("2024-05-05"),
-    dueDate: new Date("2024-05-20"),
-  },
-  {
-    id: "5",
-    reference: "NC-2024-019",
-    title: "EPI non port par opérateur",
-    status: "closed",
-    severity: "minor",
-    source: "HSE",
-    detectedBy: "Luc Petit",
-    detectedAt: new Date("2024-04-28"),
-    dueDate: new Date("2024-05-28"),
-  },
+interface NC {
+  id: string
+  reference: string
+  title: string
+  status: "open" | "in_progress" | "closed"
+  severity: "critical" | "major" | "minor" | "observation"
+  source: string
+  detectedBy: string
+  detectedAt: Date
+  dueDate: Date
+}
+
+const mockNCs: NC[] = [
+  { id: "1", reference: "NC-2024-023", title: "Défaut de soudage sur pièce P-456", status: "open", severity: "major", source: "Production", detectedBy: "Jean Dupont", detectedAt: new Date("2024-06-01"), dueDate: new Date("2024-07-01") },
+  { id: "2", reference: "NC-2024-022", title: "Non-conformité documentaire procédure HSE", status: "in_progress", severity: "minor", source: "Audit interne", detectedBy: "Marie Martin", detectedAt: new Date("2024-05-20"), dueDate: new Date("2024-06-20") },
+  { id: "3", reference: "NC-2024-021", title: "Dépassement des délais de calibration", status: "closed", severity: "major", source: "Contrôle qualité", detectedBy: "Pierre Bernard", detectedAt: new Date("2024-05-10"), dueDate: new Date("2024-06-10") },
+  { id: "4", reference: "NC-2024-020", title: "Matière première hors spécifications", status: "open", severity: "critical", source: "Réception", detectedBy: "Sophie Moreau", detectedAt: new Date("2024-05-05"), dueDate: new Date("2024-05-20") },
+  { id: "5", reference: "NC-2024-019", title: "EPI non port par opérateur", status: "closed", severity: "minor", source: "HSE", detectedBy: "Luc Petit", detectedAt: new Date("2024-04-28"), dueDate: new Date("2024-05-28") },
+  { id: "6", reference: "NC-2024-018", title: "Écart de température chambre froide", status: "in_progress", severity: "major", source: "Maintenance", detectedBy: "Claire Durand", detectedAt: new Date("2024-04-22"), dueDate: new Date("2024-05-22") },
+  { id: "7", reference: "NC-2024-017", title: "Étiquetage produit incorrect", status: "open", severity: "minor", source: "Expédition", detectedBy: "Marc Leroy", detectedAt: new Date("2024-04-18"), dueDate: new Date("2024-05-18") },
+  { id: "8", reference: "NC-2024-016", title: "Fuite huile hydraulique presse 3", status: "closed", severity: "critical", source: "Production", detectedBy: "Jean Dupont", detectedAt: new Date("2024-04-10"), dueDate: new Date("2024-04-25") },
+  { id: "9", reference: "NC-2024-015", title: "Observation rangement zone stockage", status: "closed", severity: "observation", source: "Audit interne", detectedBy: "Sophie Moreau", detectedAt: new Date("2024-04-05"), dueDate: new Date("2024-05-05") },
+  { id: "10", reference: "NC-2024-014", title: "Retard livraison fournisseur Métal SA", status: "in_progress", severity: "minor", source: "Achats", detectedBy: "Pierre Bernard", detectedAt: new Date("2024-03-28"), dueDate: new Date("2024-04-28") },
+  { id: "11", reference: "NC-2024-013", title: "Calibre de contrôle endommagé", status: "open", severity: "major", source: "Contrôle qualité", detectedBy: "Marie Martin", detectedAt: new Date("2024-03-20"), dueDate: new Date("2024-04-20") },
+  { id: "12", reference: "NC-2024-012", title: "Manquement procédure consignation", status: "closed", severity: "critical", source: "HSE", detectedBy: "Luc Petit", detectedAt: new Date("2024-03-12"), dueDate: new Date("2024-03-27") },
+  { id: "13", reference: "NC-2024-011", title: "Observation propreté vestiaires", status: "open", severity: "observation", source: "HSE", detectedBy: "Claire Durand", detectedAt: new Date("2024-03-05"), dueDate: new Date("2024-04-05") },
 ]
 
-const statusLabels: Record<string, string> = {
+const statusLabels: Record<NC["status"], string> = {
   open: "Ouverte",
   in_progress: "En cours",
   closed: "Fermée",
 }
 
-const severityLabels: Record<string, string> = {
+const severityLabels: Record<NC["severity"], string> = {
   critical: "Critique",
   major: "Majeure",
   minor: "Mineure",
   observation: "Observation",
 }
 
-const statusVariant: Record<string, "destructive" | "warning" | "success"> = {
+const statusVariant: Record<NC["status"], "destructive" | "warning" | "success"> = {
   open: "destructive",
   in_progress: "warning",
   closed: "success",
 }
 
-const severityVariant: Record<string, "destructive" | "warning" | "outline" | "secondary"> = {
+const severityVariant: Record<NC["severity"], "destructive" | "warning" | "outline" | "secondary"> = {
   critical: "destructive",
   major: "warning",
   minor: "outline",
@@ -110,156 +78,141 @@ const severityVariant: Record<string, "destructive" | "warning" | "outline" | "s
 }
 
 export default function NonConformancesPage() {
-  const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [severityFilter, setSeverityFilter] = useState("all")
+  const router = useRouter()
 
-  const filtered = mockNCs.filter((nc) => {
-    const matchSearch =
-      nc.title.toLowerCase().includes(search.toLowerCase()) ||
-      nc.reference.toLowerCase().includes(search.toLowerCase())
-    const matchStatus = statusFilter === "all" || nc.status === statusFilter
-    const matchSeverity = severityFilter === "all" || nc.severity === severityFilter
-    return matchSearch && matchStatus && matchSeverity
-  })
+  const total = mockNCs.length
+  const open = mockNCs.filter((n) => n.status === "open").length
+  const inProgress = mockNCs.filter((n) => n.status === "in_progress").length
+  const closed = mockNCs.filter((n) => n.status === "closed").length
+
+  const columns: DataTableColumn<NC>[] = [
+    {
+      key: "reference",
+      header: "Référence",
+      sortValue: (n) => n.reference,
+      cell: (n) => <span className="font-mono text-xs text-gray-500">{n.reference}</span>,
+    },
+    {
+      key: "title",
+      header: "Titre",
+      sortValue: (n) => n.title,
+      cell: (n) => (
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
+          <span className="font-medium text-gray-900">{n.title}</span>
+        </div>
+      ),
+    },
+    {
+      key: "severity",
+      header: "Sévérité",
+      sortValue: (n) => n.severity,
+      cell: (n) => <Badge variant={severityVariant[n.severity]}>{severityLabels[n.severity]}</Badge>,
+    },
+    {
+      key: "status",
+      header: "Statut",
+      sortValue: (n) => statusLabels[n.status],
+      cell: (n) => <Badge variant={statusVariant[n.status]}>{statusLabels[n.status]}</Badge>,
+    },
+    {
+      key: "source",
+      header: "Source",
+      sortValue: (n) => n.source,
+      hideOnMobile: true,
+      cell: (n) => <span className="text-sm text-gray-600">{n.source}</span>,
+    },
+    {
+      key: "detectedBy",
+      header: "Détecté par",
+      sortValue: (n) => n.detectedBy,
+      hideOnMobile: true,
+      cell: (n) => <span className="text-sm text-gray-600">{n.detectedBy}</span>,
+    },
+    {
+      key: "detectedAt",
+      header: "Date",
+      sortValue: (n) => n.detectedAt,
+      hideOnMobile: true,
+      cell: (n) => <span className="text-sm text-gray-600">{format(n.detectedAt, "dd MMM yyyy", { locale: fr })}</span>,
+    },
+    {
+      key: "dueDate",
+      header: "Échéance",
+      sortValue: (n) => n.dueDate,
+      hideOnMobile: true,
+      cell: (n) => <span className="text-sm text-gray-600">{format(n.dueDate, "dd MMM yyyy", { locale: fr })}</span>,
+    },
+  ]
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Non-Conformités</h2>
-          <p className="text-sm text-gray-500 mt-1">Suivi des non-conformités détectées</p>
-        </div>
+      <PageHeader
+        title="Non-Conformités"
+        description="Suivi des non-conformités détectées"
+        icon={AlertTriangle}
+      >
         <Link href="/non-conformances/new">
           <Button className="bg-blue-600 hover:bg-blue-700">
             <Plus className="mr-2 h-4 w-4" />
             Nouvelle NC
           </Button>
         </Link>
+      </PageHeader>
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard title="Total" value={total} icon={AlertCircle} iconColor="text-gray-600" iconBg="bg-gray-100" />
+        <StatCard title="Ouvertes" value={open} icon={CircleDot} iconColor="text-red-600" iconBg="bg-red-50" />
+        <StatCard title="En cours" value={inProgress} icon={Clock} iconColor="text-amber-600" iconBg="bg-amber-50" />
+        <StatCard title="Fermées" value={closed} icon={CheckCheck} iconColor="text-green-600" iconBg="bg-green-50" />
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: "Totales", value: mockNCs.length, color: "text-gray-700" },
-          { label: "Ouvertes", value: mockNCs.filter((n) => n.status === "open").length, color: "text-red-600" },
-          { label: "En cours", value: mockNCs.filter((n) => n.status === "in_progress").length, color: "text-amber-600" },
-          { label: "Fermées", value: mockNCs.filter((n) => n.status === "closed").length, color: "text-green-600" },
-        ].map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="p-4 text-center">
-              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-              <p className="text-sm text-gray-600">{stat.label}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Rechercher une NC..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="Statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="open">Ouverte</SelectItem>
-                <SelectItem value="in_progress">En cours</SelectItem>
-                <SelectItem value="closed">Fermée</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={severityFilter} onValueChange={setSeverityFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="Sévérité" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes sévérités</SelectItem>
-                <SelectItem value="critical">Critique</SelectItem>
-                <SelectItem value="major">Majeure</SelectItem>
-                <SelectItem value="minor">Mineure</SelectItem>
-                <SelectItem value="observation">Observation</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Table */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-gray-500">
-            {filtered.length} non-conformité{filtered.length !== 1 ? "s" : ""}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50">
-                <TableHead>Référence</TableHead>
-                <TableHead>Titre</TableHead>
-                <TableHead>Sévérité</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Détecté par</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Échéance</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((nc) => (
-                <TableRow key={nc.id} className="hover:bg-red-50/30">
-                  <TableCell className="font-mono text-xs text-gray-500">
-                    {nc.reference}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
-                      <span className="font-medium text-gray-900">{nc.title}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={severityVariant[nc.severity]}>
-                      {severityLabels[nc.severity]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariant[nc.status]}>
-                      {statusLabels[nc.status]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-600">{nc.source}</TableCell>
-                  <TableCell className="text-sm text-gray-600">{nc.detectedBy}</TableCell>
-                  <TableCell className="text-sm text-gray-600">
-                    {format(nc.detectedAt, "dd MMM yyyy", { locale: fr })}
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-600">
-                    {format(nc.dueDate, "dd MMM yyyy", { locale: fr })}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/non-conformances/${nc.id}`}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          </div>
+          <DataTable
+            data={mockNCs}
+            columns={columns}
+            getRowId={(n) => n.id}
+            searchPlaceholder="Rechercher par titre ou référence..."
+            searchAccessor={(n) => `${n.title} ${n.reference} ${n.detectedBy} ${n.source}`}
+            filters={[
+              {
+                key: "status",
+                label: "Statut",
+                value: (n) => n.status,
+                options: [
+                  { value: "open", label: "Ouverte" },
+                  { value: "in_progress", label: "En cours" },
+                  { value: "closed", label: "Fermée" },
+                ],
+              },
+              {
+                key: "severity",
+                label: "Sévérité",
+                value: (n) => n.severity,
+                options: [
+                  { value: "critical", label: "Critique" },
+                  { value: "major", label: "Majeure" },
+                  { value: "minor", label: "Mineure" },
+                  { value: "observation", label: "Observation" },
+                ],
+              },
+            ]}
+            onRowClick={(n) => router.push(`/non-conformances/${n.id}`)}
+            rowActions={(n) => (
+              <div className="flex items-center justify-end gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/non-conformances/${n.id}`)}>
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            bulkActions={[
+              { label: "Assigner", icon: UserPlus, onClick: () => {} },
+              { label: "Clôturer", icon: CheckCircle2, onClick: () => {}, variant: "outline" },
+              { label: "Supprimer", icon: Trash2, onClick: () => {}, variant: "destructive" },
+            ]}
+            emptyMessage="Aucune non-conformité."
+          />
         </CardContent>
       </Card>
     </div>

@@ -17,6 +17,15 @@ const pageTitles: Record<string, string> = {
   "/audits/new": "Nouvel Audit",
   "/risks": "Registre des Risques",
   "/indicators": "Indicateurs",
+  "/action-plan": "Plan d'actions",
+  "/complaints": "Réclamations",
+  "/complaints/new": "Nouvelle Réclamation",
+  "/suppliers": "Fournisseurs",
+  "/suppliers/new": "Nouveau Fournisseur",
+  "/training": "Formations",
+  "/training/new": "Nouvelle Formation",
+  "/equipment": "Équipements",
+  "/equipment/new": "Nouvel Équipement",
 }
 
 function getTitle(pathname: string): string {
@@ -25,6 +34,10 @@ function getTitle(pathname: string): string {
   if (pathname.startsWith("/non-conformances/")) return "Détail Non-Conformité"
   if (pathname.startsWith("/capa/")) return "Détail CAPA"
   if (pathname.startsWith("/audits/")) return "Détail Audit"
+  if (pathname.startsWith("/complaints/")) return "Détail Réclamation"
+  if (pathname.startsWith("/suppliers/")) return "Détail Fournisseur"
+  if (pathname.startsWith("/training/")) return "Détail Formation"
+  if (pathname.startsWith("/equipment/")) return "Détail Équipement"
   return "QHSE"
 }
 

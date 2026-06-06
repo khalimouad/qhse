@@ -3,7 +3,9 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { TrendingUp, TrendingDown, Minus, Target } from "lucide-react"
+import { PageHeader } from "@/components/ui/page-header"
+import { StatCard } from "@/components/ui/stat-card"
+import { TrendingUp, TrendingDown, Minus, Target, BarChart2, CheckCircle2, AlertCircle } from "lucide-react"
 import {
   LineChart,
   Line,
@@ -158,36 +160,19 @@ export default function IndicatorsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Indicateurs de Performance</h2>
-          <p className="text-sm text-gray-500 mt-1">Suivi des KPI qualité et QHSE</p>
-        </div>
-        <Badge className="bg-blue-100 text-blue-700 text-sm px-3 py-1">
-          Juin 2024
-        </Badge>
-      </div>
+      <PageHeader
+        title="Indicateurs de Performance"
+        description="Suivi des KPI qualité et QHSE"
+        icon={BarChart2}
+      >
+        <Badge className="bg-blue-100 px-3 py-1 text-sm text-blue-700">Juin 2026</Badge>
+      </PageHeader>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-4">
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-green-600">{onTarget}</p>
-            <p className="text-sm text-green-700">Objectifs atteints</p>
-          </CardContent>
-        </Card>
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-amber-600">{indicators.length - onTarget}</p>
-            <p className="text-sm text-amber-700">Objectifs non atteints</p>
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-blue-600">{improving}</p>
-            <p className="text-sm text-blue-700">En amélioration</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard title="Objectifs atteints" value={onTarget} icon={CheckCircle2} iconColor="text-green-600" iconBg="bg-green-50" />
+        <StatCard title="Objectifs non atteints" value={indicators.length - onTarget} icon={AlertCircle} iconColor="text-amber-600" iconBg="bg-amber-50" />
+        <StatCard title="En amélioration" value={improving} icon={TrendingUp} iconColor="text-blue-600" iconBg="bg-blue-50" />
       </div>
 
       {/* KPI Cards */}

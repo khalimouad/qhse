@@ -1,281 +1,224 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
-import { Plus, Search, FileText, Download, Eye, Edit } from "lucide-react"
+import {
+  Plus,
+  FileText,
+  Download,
+  Eye,
+  Trash2,
+  CheckCircle2,
+  Archive,
+  FileCheck,
+  FileClock,
+  FileX,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { PageHeader } from "@/components/ui/page-header"
+import { StatCard } from "@/components/ui/stat-card"
+import { Card, CardContent } from "@/components/ui/card"
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
 
-const mockDocuments = [
-  {
-    id: "1",
-    reference: "PRO-QUA-001",
-    title: "Procédure de contrôle qualité entrant",
-    category: "Procédure",
-    status: "approved",
-    version: "v3.2",
-    owner: "Jean Dupont",
-    reviewDate: new Date("2025-03-15"),
-    updatedAt: new Date("2024-03-15"),
-  },
-  {
-    id: "2",
-    reference: "INS-PRO-012",
-    title: "Instruction de soudage TIG",
-    category: "Instruction",
-    status: "approved",
-    version: "v1.5",
-    owner: "Marie Martin",
-    reviewDate: new Date("2024-08-20"),
-    updatedAt: new Date("2024-01-20"),
-  },
-  {
-    id: "3",
-    reference: "FRM-SEC-003",
-    title: "Formulaire d'analyse de risque",
-    category: "Formulaire",
-    status: "draft",
-    version: "v0.2",
-    owner: "Pierre Bernard",
-    reviewDate: new Date("2024-12-01"),
-    updatedAt: new Date("2024-06-01"),
-  },
-  {
-    id: "4",
-    reference: "POL-QUA-001",
-    title: "Politique qualité de l'entreprise",
-    category: "Politique",
-    status: "approved",
-    version: "v2.0",
-    owner: "Sophie Moreau",
-    reviewDate: new Date("2025-01-10"),
-    updatedAt: new Date("2024-01-10"),
-  },
-  {
-    id: "5",
-    reference: "PRO-ENV-005",
-    title: "Procédure de gestion des déchets",
-    category: "Procédure",
-    status: "obsolete",
-    version: "v1.0",
-    owner: "Luc Petit",
-    reviewDate: new Date("2023-06-30"),
-    updatedAt: new Date("2022-06-30"),
-  },
-  {
-    id: "6",
-    reference: "PRO-SEC-008",
-    title: "Procédure de travail en hauteur",
-    category: "Procédure",
-    status: "approved",
-    version: "v2.1",
-    owner: "Claire Durand",
-    reviewDate: new Date("2025-02-28"),
-    updatedAt: new Date("2024-02-28"),
-  },
-]
-
-const statusLabels: Record<string, string> = {
-  approved: "Approuvé",
-  draft: "Brouillon",
-  obsolete: "Obsolète",
+interface Doc {
+  id: string
+  reference: string
+  title: string
+  category: string
+  status: "approved" | "draft" | "review" | "obsolete"
+  version: string
+  owner: string
+  reviewDate: Date
+  updatedAt: Date
 }
 
-const statusVariants: Record<string, "success" | "warning" | "secondary"> = {
-  approved: "success",
-  draft: "warning",
-  obsolete: "secondary",
+const mockDocuments: Doc[] = [
+  { id: "1", reference: "PRO-QUA-001", title: "Procédure de contrôle qualité entrant", category: "Procédure", status: "approved", version: "v3.2", owner: "Jean Dupont", reviewDate: new Date("2026-03-15"), updatedAt: new Date("2025-03-15") },
+  { id: "2", reference: "INS-PRO-012", title: "Instruction de soudage TIG", category: "Instruction", status: "approved", version: "v1.5", owner: "Marie Martin", reviewDate: new Date("2026-08-20"), updatedAt: new Date("2025-01-20") },
+  { id: "3", reference: "FRM-SEC-003", title: "Formulaire d'analyse de risque", category: "Formulaire", status: "draft", version: "v0.2", owner: "Pierre Bernard", reviewDate: new Date("2026-12-01"), updatedAt: new Date("2025-06-01") },
+  { id: "4", reference: "POL-QUA-001", title: "Politique qualité de l'entreprise", category: "Politique", status: "approved", version: "v2.0", owner: "Sophie Moreau", reviewDate: new Date("2026-01-10"), updatedAt: new Date("2025-01-10") },
+  { id: "5", reference: "PRO-ENV-005", title: "Procédure de gestion des déchets", category: "Procédure", status: "obsolete", version: "v1.0", owner: "Luc Petit", reviewDate: new Date("2024-06-30"), updatedAt: new Date("2023-06-30") },
+  { id: "6", reference: "PRO-SEC-008", title: "Procédure de travail en hauteur", category: "Procédure", status: "approved", version: "v2.1", owner: "Claire Durand", reviewDate: new Date("2026-02-28"), updatedAt: new Date("2025-02-28") },
+  { id: "7", reference: "MAN-QUA-001", title: "Manuel qualité ISO 9001", category: "Manuel", status: "review", version: "v4.0", owner: "Jean Dupont", reviewDate: new Date("2026-05-15"), updatedAt: new Date("2025-05-15") },
+  { id: "8", reference: "INS-ENV-004", title: "Instruction de tri sélectif", category: "Instruction", status: "approved", version: "v1.2", owner: "Luc Petit", reviewDate: new Date("2026-09-10"), updatedAt: new Date("2025-04-10") },
+  { id: "9", reference: "FRM-QUA-007", title: "Fiche de non-conformité", category: "Formulaire", status: "approved", version: "v2.3", owner: "Marie Martin", reviewDate: new Date("2026-07-22"), updatedAt: new Date("2025-03-22") },
+  { id: "10", reference: "PRO-RH-002", title: "Procédure d'accueil et intégration", category: "Procédure", status: "draft", version: "v0.5", owner: "Sophie Moreau", reviewDate: new Date("2026-11-30"), updatedAt: new Date("2025-06-30") },
+  { id: "11", reference: "INS-SEC-009", title: "Consignes en cas d'incendie", category: "Instruction", status: "approved", version: "v3.0", owner: "Claire Durand", reviewDate: new Date("2026-04-18"), updatedAt: new Date("2025-04-18") },
+  { id: "12", reference: "POL-ENV-002", title: "Politique environnementale", category: "Politique", status: "review", version: "v1.8", owner: "Pierre Bernard", reviewDate: new Date("2026-06-05"), updatedAt: new Date("2025-05-05") },
+]
+
+const statusConfig: Record<Doc["status"], { label: string; variant: "success" | "warning" | "info" | "secondary" }> = {
+  approved: { label: "Approuvé", variant: "success" },
+  draft: { label: "Brouillon", variant: "warning" },
+  review: { label: "En révision", variant: "info" },
+  obsolete: { label: "Obsolète", variant: "secondary" },
 }
 
 export default function DocumentsPage() {
-  const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [categoryFilter, setCategoryFilter] = useState("all")
+  const router = useRouter()
+  const today = new Date()
 
-  const filtered = mockDocuments.filter((doc) => {
-    const matchSearch =
-      doc.title.toLowerCase().includes(search.toLowerCase()) ||
-      doc.reference.toLowerCase().includes(search.toLowerCase())
-    const matchStatus = statusFilter === "all" || doc.status === statusFilter
-    const matchCategory = categoryFilter === "all" || doc.category === categoryFilter
-    return matchSearch && matchStatus && matchCategory
-  })
+  const approved = mockDocuments.filter((d) => d.status === "approved").length
+  const inReview = mockDocuments.filter((d) => d.status === "review").length
+  const drafts = mockDocuments.filter((d) => d.status === "draft").length
+  const dueSoon = mockDocuments.filter(
+    (d) => d.status !== "obsolete" && (d.reviewDate.getTime() - today.getTime()) / 86400000 < 90
+  ).length
+
+  const columns: DataTableColumn<Doc>[] = [
+    {
+      key: "reference",
+      header: "Référence",
+      sortValue: (d) => d.reference,
+      cell: (d) => <span className="font-mono text-xs text-gray-500">{d.reference}</span>,
+    },
+    {
+      key: "title",
+      header: "Titre",
+      sortValue: (d) => d.title,
+      cell: (d) => (
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 shrink-0 text-blue-400" />
+          <span className="font-medium text-gray-900">{d.title}</span>
+        </div>
+      ),
+    },
+    {
+      key: "category",
+      header: "Catégorie",
+      sortValue: (d) => d.category,
+      hideOnMobile: true,
+      cell: (d) => (
+        <Badge variant="outline" className="font-normal">
+          {d.category}
+        </Badge>
+      ),
+    },
+    {
+      key: "version",
+      header: "Version",
+      sortValue: (d) => d.version,
+      hideOnMobile: true,
+      cell: (d) => <span className="font-mono text-xs text-gray-600">{d.version}</span>,
+    },
+    {
+      key: "status",
+      header: "Statut",
+      sortValue: (d) => statusConfig[d.status].label,
+      cell: (d) => (
+        <Badge variant={statusConfig[d.status].variant}>
+          {statusConfig[d.status].label}
+        </Badge>
+      ),
+    },
+    {
+      key: "owner",
+      header: "Responsable",
+      sortValue: (d) => d.owner,
+      hideOnMobile: true,
+      cell: (d) => <span className="text-sm text-gray-600">{d.owner}</span>,
+    },
+    {
+      key: "reviewDate",
+      header: "Révision prévue",
+      sortValue: (d) => d.reviewDate,
+      hideOnMobile: true,
+      cell: (d) => {
+        const days = (d.reviewDate.getTime() - today.getTime()) / 86400000
+        const overdue = days < 0 && d.status !== "obsolete"
+        const soon = days >= 0 && days < 90 && d.status !== "obsolete"
+        return (
+          <span
+            className={
+              overdue
+                ? "text-sm font-medium text-red-600"
+                : soon
+                ? "text-sm font-medium text-amber-600"
+                : "text-sm text-gray-600"
+            }
+          >
+            {format(d.reviewDate, "dd MMM yyyy", { locale: fr })}
+          </span>
+        )
+      },
+    },
+  ]
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Documents</h2>
-          <p className="text-sm text-gray-500 mt-1">Gérez vos documents qualité</p>
-        </div>
+      <PageHeader
+        title="Gestion documentaire"
+        description="Maîtrise des documents qualité, versions et cycles de révision"
+        icon={FileText}
+      >
         <Link href="/documents/new">
           <Button className="bg-blue-600 hover:bg-blue-700">
             <Plus className="mr-2 h-4 w-4" />
             Nouveau document
           </Button>
         </Link>
+      </PageHeader>
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard title="Approuvés" value={approved} icon={FileCheck} iconColor="text-green-600" iconBg="bg-green-50" />
+        <StatCard title="En révision" value={inReview} icon={FileClock} iconColor="text-blue-600" iconBg="bg-blue-50" />
+        <StatCard title="Brouillons" value={drafts} icon={FileText} iconColor="text-amber-600" iconBg="bg-amber-50" />
+        <StatCard title="Révision < 90j" value={dueSoon} icon={FileX} iconColor="text-red-600" iconBg="bg-red-50" hint="à planifier" />
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">
-              {mockDocuments.filter((d) => d.status === "approved").length}
-            </p>
-            <p className="text-sm text-gray-600">Approuvés</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-yellow-600">
-              {mockDocuments.filter((d) => d.status === "draft").length}
-            </p>
-            <p className="text-sm text-gray-600">Brouillons</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-gray-400">
-              {mockDocuments.filter((d) => d.status === "obsolete").length}
-            </p>
-            <p className="text-sm text-gray-600">Obsolètes</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Rechercher par titre ou référence..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="Statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="approved">Approuvé</SelectItem>
-                <SelectItem value="draft">Brouillon</SelectItem>
-                <SelectItem value="obsolete">Obsolète</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-44">
-                <SelectValue placeholder="Catégorie" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes catégories</SelectItem>
-                <SelectItem value="Procédure">Procédure</SelectItem>
-                <SelectItem value="Instruction">Instruction</SelectItem>
-                <SelectItem value="Formulaire">Formulaire</SelectItem>
-                <SelectItem value="Politique">Politique</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Table */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-gray-500">
-            {filtered.length} document{filtered.length !== 1 ? "s" : ""}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50">
-                <TableHead>Référence</TableHead>
-                <TableHead>Titre</TableHead>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Version</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Responsable</TableHead>
-                <TableHead>Révision prévue</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((doc) => (
-                <TableRow key={doc.id} className="hover:bg-blue-50/30">
-                  <TableCell className="font-mono text-xs text-gray-500">
-                    {doc.reference}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-blue-400 shrink-0" />
-                      <span className="font-medium text-gray-900">{doc.title}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      {doc.category}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded">
-                      {doc.version}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariants[doc.status]}>
-                      {statusLabels[doc.status]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-600">{doc.owner}</TableCell>
-                  <TableCell className="text-sm text-gray-600">
-                    {format(doc.reviewDate, "dd MMM yyyy", { locale: fr })}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link href={`/documents/${doc.id}`}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          </div>
+          <DataTable
+            data={mockDocuments}
+            columns={columns}
+            getRowId={(d) => d.id}
+            searchPlaceholder="Rechercher par titre ou référence..."
+            searchAccessor={(d) => `${d.title} ${d.reference} ${d.owner}`}
+            filters={[
+              {
+                key: "status",
+                label: "Statut",
+                value: (d) => d.status,
+                options: [
+                  { value: "approved", label: "Approuvé" },
+                  { value: "review", label: "En révision" },
+                  { value: "draft", label: "Brouillon" },
+                  { value: "obsolete", label: "Obsolète" },
+                ],
+              },
+              {
+                key: "category",
+                label: "Catégorie",
+                value: (d) => d.category,
+                options: [
+                  { value: "Procédure", label: "Procédure" },
+                  { value: "Instruction", label: "Instruction" },
+                  { value: "Formulaire", label: "Formulaire" },
+                  { value: "Politique", label: "Politique" },
+                  { value: "Manuel", label: "Manuel" },
+                ],
+              },
+            ]}
+            onRowClick={(d) => router.push(`/documents/${d.id}`)}
+            rowActions={(d) => (
+              <div className="flex items-center justify-end gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/documents/${d.id}`)}>
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Download className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            bulkActions={[
+              { label: "Approuver", icon: CheckCircle2, onClick: () => {} },
+              { label: "Archiver", icon: Archive, onClick: () => {}, variant: "outline" },
+              { label: "Supprimer", icon: Trash2, onClick: () => {}, variant: "destructive" },
+            ]}
+          />
         </CardContent>
       </Card>
     </div>
