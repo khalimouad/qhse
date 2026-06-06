@@ -228,7 +228,7 @@ export default function RisksPage() {
       </Card>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: "Critiques", count: mockRisks.filter(r => getRiskLevel(r.probability, r.impact) === "critical").length, color: "text-red-600", bg: "bg-red-50" },
           { label: "Élevés", count: mockRisks.filter(r => getRiskLevel(r.probability, r.impact) === "high").length, color: "text-orange-600", bg: "bg-orange-50" },
@@ -267,6 +267,7 @@ export default function RisksPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
@@ -333,6 +334,7 @@ export default function RisksPage() {
               })}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -139,7 +139,7 @@ export default function NonConformancesPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: "Totales", value: mockNCs.length, color: "text-gray-700" },
           { label: "Ouvertes", value: mockNCs.filter((n) => n.status === "open").length, color: "text-red-600" },
@@ -203,6 +203,7 @@ export default function NonConformancesPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
@@ -258,6 +259,7 @@ export default function NonConformancesPage() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

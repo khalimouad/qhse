@@ -138,7 +138,7 @@ export default function CapaPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: "Total", value: mockCAPAs.length, color: "text-gray-700" },
           { label: "Ouvertes", value: mockCAPAs.filter((c) => c.status === "open").length, color: "text-red-600" },
@@ -201,6 +201,7 @@ export default function CapaPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
@@ -265,6 +266,7 @@ export default function CapaPage() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

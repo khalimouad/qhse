@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Bell, LogOut, User, Settings } from "lucide-react"
+import { Bell, LogOut, User, Settings, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -17,27 +17,36 @@ import { createClient } from "@/lib/supabase/client"
 interface HeaderProps {
   title: string
   userEmail?: string
+  onMenuToggle?: () => void
 }
 
-export function Header({ title, userEmail }: HeaderProps) {
+export function Header({ title, userEmail, onMenuToggle }: HeaderProps) {
   const router = useRouter()
-  const supabase = createClient()
 
   const handleSignOut = async () => {
+    const supabase = createClient()
     await supabase.auth.signOut()
     router.push("/login")
     router.refresh()
   }
 
-  const initials = userEmail
-    ? userEmail.substring(0, 2).toUpperCase()
-    : "QH"
+  const initials = userEmail ? userEmail.substring(0, 2).toUpperCase() : "QH"
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-6 shadow-sm">
-      <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+    <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:px-6 shadow-sm">
+      <div className="flex items-center gap-3">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuToggle}
+          className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 md:hidden"
+          aria-label="Ouvrir le menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <h1 className="text-lg font-semibold text-gray-900 md:text-xl">{title}</h1>
+      </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4">
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5 text-gray-500" />
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
