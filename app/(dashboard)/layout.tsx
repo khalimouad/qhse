@@ -27,6 +27,9 @@ const pageTitles: Record<string, string> = {
   "/training/new": "Nouvelle Formation",
   "/equipment": "Équipements",
   "/equipment/new": "Nouvel Équipement",
+  "/profile": "Mon profil",
+  "/settings": "Paramètres",
+  "/notifications": "Notifications",
 }
 
 function getTitle(pathname: string): string {
