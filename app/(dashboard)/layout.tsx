@@ -1,10 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
-import { createClient } from "@/lib/supabase/client"
 
 const pageTitles: Record<string, string> = {
   "/": "Tableau de bord",
@@ -35,22 +33,13 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const [userEmail, setUserEmail] = useState<string | undefined>()
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => {
-      setUserEmail(data.user?.email ?? undefined)
-    })
-  }, [])
-
   const title = getTitle(pathname)
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header title={title} userEmail={userEmail} />
+        <Header title={title} userEmail="admin@qhse.fr" />
         <main className="flex-1 overflow-y-auto p-6">
           {children}
         </main>
