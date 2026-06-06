@@ -1,0 +1,60 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
+import { Sidebar } from "@/components/layout/sidebar"
+import { Header } from "@/components/layout/header"
+import { createClient } from "@/lib/supabase/client"
+
+const pageTitles: Record<string, string> = {
+  "/": "Tableau de bord",
+  "/documents": "Documents",
+  "/documents/new": "Nouveau document",
+  "/non-conformances": "Non-Conformités",
+  "/non-conformances/new": "Nouvelle Non-Conformité",
+  "/capa": "CAPA",
+  "/capa/new": "Nouvelle CAPA",
+  "/audits": "Audits",
+  "/audits/new": "Nouvel Audit",
+  "/risks": "Registre des Risques",
+  "/indicators": "Indicateurs",
+}
+
+function getTitle(pathname: string): string {
+  if (pageTitles[pathname]) return pageTitles[pathname]
+  if (pathname.startsWith("/documents/")) return "Détail Document"
+  if (pathname.startsWith("/non-conformances/")) return "Détail Non-Conformité"
+  if (pathname.startsWith("/capa/")) return "Détail CAPA"
+  if (pathname.startsWith("/audits/")) return "Détail Audit"
+  return "QHSE"
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
+  const [userEmail, setUserEmail] = useState<string | undefined>()
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? undefined)
+    })
+  }, [])
+
+  const title = getTitle(pathname)
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      <Sidebar />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <Header title={title} userEmail={userEmail} />
+        <main className="flex-1 overflow-y-auto p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  )
+}
