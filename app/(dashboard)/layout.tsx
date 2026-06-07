@@ -30,6 +30,7 @@ const pageTitles: Record<string, string> = {
   "/profile": "Mon profil",
   "/settings": "Paramètres",
   "/notifications": "Notifications",
+  "/documents/generate": "Générer un document",
 }
 
 function getTitle(pathname: string): string {

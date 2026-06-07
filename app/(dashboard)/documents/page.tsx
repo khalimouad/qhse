@@ -15,6 +15,7 @@ import {
   FileCheck,
   FileClock,
   FileX,
+  Wand2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -154,12 +155,20 @@ export default function DocumentsPage() {
         description="Maîtrise des documents qualité, versions et cycles de révision"
         icon={FileText}
       >
-        <Link href="/documents/new">
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="mr-2 h-4 w-4" />
-            Nouveau document
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/documents/generate">
+            <Button variant="outline">
+              <Wand2 className="mr-2 h-4 w-4" />
+              Générer
+            </Button>
+          </Link>
+          <Link href="/documents/new">
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="mr-2 h-4 w-4" />
+              Nouveau document
+            </Button>
+          </Link>
+        </div>
       </PageHeader>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
