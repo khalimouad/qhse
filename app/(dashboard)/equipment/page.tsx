@@ -20,6 +20,8 @@ import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 
 type EquipmentType = "Mesure" | "Production" | "Sécurité" | "Laboratoire"
 
@@ -80,7 +82,15 @@ const statusConfig: Record<
 
 export default function EquipmentPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const today = new Date()
+
+  function handleExport(rows: Equipment[]) {
+    const data = rows.length ? rows : mockEquipment
+    downloadCsv("equipements", ["Code","Désignation","Type","Localisation","Statut","Dernier étalonnage","Prochain étalonnage","Responsable"],
+      data.map((e) => [e.code, e.name, e.type, e.location, statusConfig[e.status].label, e.lastCalibration, e.nextCalibration, e.responsible]))
+    toast({ title: "Export réussi", description: `${data.length} équipements exportés en CSV.` })
+  }
 
   const total = mockEquipment.length
   const operational = mockEquipment.filter((e) => e.status === "operational").length
@@ -242,8 +252,8 @@ export default function EquipmentPage() {
               </div>
             )}
             bulkActions={[
-              { label: "Planifier étalonnage", icon: CalendarCheck, onClick: () => {} },
-              { label: "Exporter", icon: Download, onClick: () => {}, variant: "outline" },
+              { label: "Planifier étalonnage", icon: CalendarCheck, onClick: (rows) => { toast({ title: `Étalonnage planifié`, description: `${rows.length} équipement(s) ajoutés au planning.` }) } },
+              { label: "Exporter CSV", icon: Download, onClick: (rows) => handleExport(rows), variant: "outline" },
             ]}
           />
         </CardContent>

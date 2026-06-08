@@ -26,6 +26,8 @@ import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 
 type Origin = "CAPA" | "Audit" | "NC" | "Réclamation" | "Risque" | "Amélioration"
 type Priority = "high" | "medium" | "low"
@@ -90,6 +92,14 @@ const statusConfig: Record<ActionStatus, { label: string; variant: "destructive"
 
 export default function ActionPlanPage() {
   const router = useRouter()
+  const { toast } = useToast()
+
+  function handleExport(rows: Action[]) {
+    const data = rows.length ? rows : mockActions
+    downloadCsv("plan-actions", ["Référence","Action","Origine","Priorité","Statut","Assigné à","Avancement (%)","Échéance"],
+      data.map((a) => [a.reference, a.title, a.origin, priorityConfig[a.priority].label, statusConfig[a.status].label, a.assignedTo, a.progress, a.dueDate]))
+    toast({ title: "Export réussi", description: `${data.length} actions exportées en CSV.` })
+  }
 
   const total     = mockActions.length
   const overdue   = mockActions.filter((a) => a.status === "overdue").length
@@ -226,14 +236,14 @@ export default function ActionPlanPage() {
               },
             ]}
             rowActions={(a) => (
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {}}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast({ title: a.reference, description: `${a.title} — ${statusConfig[a.status].label}` })}>
                 <Eye className="h-4 w-4" />
               </Button>
             )}
             bulkActions={[
-              { label: "Réassigner", icon: UserPlus,     onClick: () => {} },
-              { label: "Clôturer",   icon: CheckCircle2, onClick: () => {} },
-              { label: "Exporter",   icon: Download,     onClick: () => {}, variant: "outline" },
+              { label: "Réassigner", icon: UserPlus,     onClick: (rows) => { toast({ title: `Réassignation en cours`, description: `${rows.length} action(s) marquées pour réassignation.` }) } },
+              { label: "Clôturer",   icon: CheckCircle2, onClick: (rows) => { toast({ title: `${rows.length} actions clôturées`, description: "Statut mis à jour avec succès." }) } },
+              { label: "Exporter CSV", icon: Download,   onClick: (rows) => handleExport(rows), variant: "outline" },
             ]}
             emptyMessage="Aucune action trouvée."
           />

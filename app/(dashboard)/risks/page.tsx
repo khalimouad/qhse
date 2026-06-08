@@ -10,6 +10,8 @@ import {
   AlertOctagon, Flame, AlertTriangle, ShieldCheck,
   BarChart3, Table2,
 } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
@@ -160,6 +162,14 @@ function RiskMatrix() {
 
 export default function RisksPage() {
   const router = useRouter()
+  const { toast } = useToast()
+
+  function handleExport(rows: Risk[]) {
+    const data = rows.length ? rows : mockRisks
+    downloadCsv("risques", ["Référence","Titre","Catégorie","Probabilité","Impact","Score","Statut","Responsable","Traitement"],
+      data.map((r) => [r.reference, r.title, r.category, r.probability, r.impact, r.probability * r.impact, r.status, r.owner, r.treatment]))
+    toast({ title: "Export réussi", description: `${data.length} risques exportés en CSV.` })
+  }
 
   const critical = mockRisks.filter((r) => getRiskLevel(r.probability, r.impact) === "critical").length
   const high     = mockRisks.filter((r) => getRiskLevel(r.probability, r.impact) === "high").length
@@ -290,7 +300,7 @@ export default function RisksPage() {
                 ]}
                 onRowClick={(r) => router.push(`/risks/${r.id}`)}
                 rowActions={(r) => <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/risks/${r.id}`)}><Eye className="h-4 w-4" /></Button>}
-                bulkActions={[{ label: "Réévaluer", icon: RefreshCw, onClick: () => {}, variant: "outline" },{ label: "Exporter", icon: Download, onClick: () => {}, variant: "outline" }]}
+                bulkActions={[{ label: "Réévaluer", icon: RefreshCw, onClick: (rows) => { toast({ title: `${rows.length} risque(s) marqués pour réévaluation.` }) }, variant: "outline" },{ label: "Exporter CSV", icon: Download, onClick: (rows) => handleExport(rows), variant: "outline" }]}
                 emptyMessage="Aucun risque."
               />
             </CardContent>

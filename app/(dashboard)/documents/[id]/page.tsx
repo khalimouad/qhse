@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { downloadAsPdf } from "@/lib/pdf"
+import { useToast } from "@/components/ui/use-toast"
 import {
   ArrowLeft,
   Edit,
@@ -17,6 +19,7 @@ import {
   AlertTriangle,
   ThumbsUp,
   ThumbsDown,
+  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -123,6 +126,18 @@ function WorkflowActions({
 
 export default function DocumentDetailPage({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState<DocStatus>(mockDoc.status)
+  const [pdfLoading, setPdfLoading] = useState(false)
+  const { toast } = useToast()
+
+  async function handleDownloadPdf() {
+    setPdfLoading(true)
+    try {
+      await downloadAsPdf("doc-detail-content", `${mockDoc.reference}_v${mockDoc.version}`)
+      toast({ title: "PDF généré", description: `${mockDoc.reference} téléchargé avec succès.` })
+    } finally {
+      setPdfLoading(false)
+    }
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -148,9 +163,9 @@ export default function DocumentDetailPage({ params }: { params: { id: string } 
 
         <div className="flex flex-wrap items-center gap-2 pl-12 sm:pl-0">
           <WorkflowActions status={status} onTransition={setStatus} />
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Télécharger
+          <Button variant="outline" size="sm" onClick={handleDownloadPdf} disabled={pdfLoading}>
+            {pdfLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            {pdfLoading ? "Génération..." : "Télécharger"}
           </Button>
           <Button size="sm" variant="ghost">
             <Edit className="mr-2 h-4 w-4" />
@@ -179,7 +194,7 @@ export default function DocumentDetailPage({ params }: { params: { id: string } 
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div id="doc-detail-content" className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Main info */}
         <div className="md:col-span-2 space-y-6">
           <Card className="border-0 shadow-sm">
@@ -293,8 +308,8 @@ export default function DocumentDetailPage({ params }: { params: { id: string } 
               <CardTitle className="text-base">Actions rapides</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start" size="sm">
-                <Download className="mr-2 h-4 w-4 text-blue-500" />
+              <Button variant="outline" className="w-full justify-start" size="sm" onClick={handleDownloadPdf} disabled={pdfLoading}>
+                {pdfLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin text-blue-500" /> : <Download className="mr-2 h-4 w-4 text-blue-500" />}
                 Télécharger PDF
               </Button>
               <Button variant="outline" className="w-full justify-start" size="sm">

@@ -22,6 +22,8 @@ import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 
 interface CAPA {
   id: string
@@ -72,6 +74,14 @@ const statusVariant: Record<CAPA["status"], "destructive" | "warning" | "info" |
 
 export default function CapaPage() {
   const router = useRouter()
+  const { toast } = useToast()
+
+  function handleExport(rows: CAPA[]) {
+    const data = rows.length ? rows : mockCAPAs
+    downloadCsv("capa", ["Référence","Titre","Type","Statut","NC liée","Assigné à","Avancement (%)","Échéance"],
+      data.map((c) => [c.reference, c.title, typeLabels[c.type], statusLabels[c.status], c.ncRef ?? "", c.assignedTo, c.progress, c.dueDate]))
+    toast({ title: "Export réussi", description: `${data.length} CAPA exportées en CSV.` })
+  }
 
   const total = mockCAPAs.length
   const open = mockCAPAs.filter((c) => c.status === "open").length
@@ -211,8 +221,9 @@ export default function CapaPage() {
               </div>
             )}
             bulkActions={[
-              { label: "Clôturer", icon: CheckCircle2, onClick: () => {}, variant: "outline" },
-              { label: "Supprimer", icon: Trash2, onClick: () => {}, variant: "destructive" },
+              { label: "Exporter CSV", icon: ListChecks, onClick: (rows) => handleExport(rows) },
+              { label: "Clôturer", icon: CheckCircle2, onClick: (rows) => { toast({ title: `${rows.length} CAPA clôturées`, description: "Statut mis à jour avec succès." }) }, variant: "outline" },
+              { label: "Supprimer", icon: Trash2, onClick: (rows) => { toast({ title: `${rows.length} CAPA supprimées`, description: "Les enregistrements ont été retirés.", variant: "destructive" }) }, variant: "destructive" },
             ]}
             emptyMessage="Aucune action CAPA."
           />

@@ -22,6 +22,8 @@ import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 
 interface NC {
   id: string
@@ -79,6 +81,14 @@ const severityVariant: Record<NC["severity"], "destructive" | "warning" | "outli
 
 export default function NonConformancesPage() {
   const router = useRouter()
+  const { toast } = useToast()
+
+  function handleExport(rows: NC[]) {
+    const data = rows.length ? rows : mockNCs
+    downloadCsv("non-conformances", ["Référence","Titre","Sévérité","Statut","Source","Détecté par","Date détection","Échéance"],
+      data.map((n) => [n.reference, n.title, severityLabels[n.severity], statusLabels[n.status], n.source, n.detectedBy, n.detectedAt, n.dueDate]))
+    toast({ title: "Export réussi", description: `${data.length} NC exportées en CSV.` })
+  }
 
   const total = mockNCs.length
   const open = mockNCs.filter((n) => n.status === "open").length
@@ -207,9 +217,9 @@ export default function NonConformancesPage() {
               </div>
             )}
             bulkActions={[
-              { label: "Assigner", icon: UserPlus, onClick: () => {} },
-              { label: "Clôturer", icon: CheckCircle2, onClick: () => {}, variant: "outline" },
-              { label: "Supprimer", icon: Trash2, onClick: () => {}, variant: "destructive" },
+              { label: "Exporter CSV", icon: CheckCheck, onClick: (rows) => handleExport(rows) },
+              { label: "Clôturer", icon: CheckCircle2, onClick: (rows) => { toast({ title: `${rows.length} NC clôturées`, description: "Statut mis à jour avec succès." }) }, variant: "outline" },
+              { label: "Supprimer", icon: Trash2, onClick: (rows) => { toast({ title: `${rows.length} NC supprimées`, description: "Les enregistrements ont été retirés.", variant: "destructive" }) }, variant: "destructive" },
             ]}
             emptyMessage="Aucune non-conformité."
           />

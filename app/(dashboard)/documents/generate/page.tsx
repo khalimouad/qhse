@@ -7,8 +7,10 @@ import { fr } from "date-fns/locale"
 import {
   ArrowLeft, ArrowRight, FileText, BookOpen, Layers,
   List, GitBranch, Shield, ClipboardList, Activity,
-  Plus, Trash2, CheckCircle2, Save, Eye,
+  Plus, Trash2, CheckCircle2, Save, Eye, Loader2,
 } from "lucide-react"
+import { downloadAsPdf } from "@/lib/pdf"
+import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -722,7 +724,7 @@ function Preview({ type, form }: { type: string; form: any }) {
         <span className="text-xs font-semibold text-gray-500">APERÇU DU DOCUMENT</span>
         {form.reference && <Badge variant="outline" className="text-[10px] ml-auto">{form.reference}</Badge>}
       </div>
-      <div className="p-4 overflow-auto max-h-[600px]">
+      <div id="doc-preview-content" className="p-4 overflow-auto max-h-[600px]">
         {type === "procedure"   && <PreviewProcedure f={form} />}
         {type === "instruction" && <PreviewInstruction f={form} />}
         {type === "gamme"       && <PreviewGamme f={form} />}
@@ -744,6 +746,19 @@ export default function GeneratePage() {
   const [selectedType, setSelectedType] = useState<string | null>(null)
   const [form, setForm] = useState<Record<string, any>>({})
   const [saved, setSaved] = useState(false)
+  const [pdfLoading, setPdfLoading] = useState(false)
+  const { toast } = useToast()
+
+  async function handlePdfExport() {
+    setPdfLoading(true)
+    try {
+      const filename = form.reference || `${typeObj?.prefix ?? "DOC"}-${new Date().getFullYear()}-export`
+      await downloadAsPdf("doc-preview-content", filename)
+      toast({ title: "PDF exporté", description: `Document "${form.title || filename}" téléchargé.` })
+    } finally {
+      setPdfLoading(false)
+    }
+  }
 
   const typeObj = DOC_TYPES.find((t) => t.key === selectedType)
 
@@ -851,8 +866,11 @@ export default function GeneratePage() {
               <Button className="bg-blue-600 hover:bg-blue-700 rounded-xl" onClick={handleSave} disabled={saved}>
                 {saved ? <><CheckCircle2 className="mr-1.5 h-4 w-4" /> Enregistré!</> : <><Save className="mr-1.5 h-4 w-4" /> Enregistrer dans la bibliothèque</>}
               </Button>
-              <Button variant="outline" className="rounded-xl">
-                <FileText className="mr-1.5 h-4 w-4" /> Exporter PDF
+              <Button variant="outline" className="rounded-xl" onClick={handlePdfExport} disabled={pdfLoading}>
+                {pdfLoading
+                  ? <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Génération...</>
+                  : <><FileText className="mr-1.5 h-4 w-4" /> Exporter PDF</>
+                }
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="text-gray-500">
                 Changer de type

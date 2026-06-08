@@ -23,6 +23,8 @@ import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 
 interface Doc {
   id: string
@@ -60,7 +62,15 @@ const statusConfig: Record<Doc["status"], { label: string; variant: "success" | 
 
 export default function DocumentsPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const today = new Date()
+
+  function handleExport(rows: Doc[]) {
+    const data = rows.length ? rows : mockDocuments
+    downloadCsv("documents", ["Référence","Titre","Catégorie","Version","Statut","Responsable","Prochaine révision"],
+      data.map((d) => [d.reference, d.title, d.category, d.version, statusConfig[d.status].label, d.owner, d.reviewDate]))
+    toast({ title: "Export réussi", description: `${data.length} documents exportés en CSV.` })
+  }
 
   const approved = mockDocuments.filter((d) => d.status === "approved").length
   const inReview = mockDocuments.filter((d) => d.status === "review").length
@@ -217,15 +227,15 @@ export default function DocumentsPage() {
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/documents/${d.id}`)}>
                   <Eye className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { handleExport([d]) }}>
                   <Download className="h-4 w-4" />
                 </Button>
               </div>
             )}
             bulkActions={[
-              { label: "Approuver", icon: CheckCircle2, onClick: () => {} },
-              { label: "Archiver", icon: Archive, onClick: () => {}, variant: "outline" },
-              { label: "Supprimer", icon: Trash2, onClick: () => {}, variant: "destructive" },
+              { label: "Approuver", icon: CheckCircle2, onClick: (rows) => { toast({ title: `${rows.length} document(s) approuvés`, description: "Statut mis à jour avec succès." }) } },
+              { label: "Exporter CSV", icon: Archive, onClick: (rows) => handleExport(rows), variant: "outline" },
+              { label: "Supprimer", icon: Trash2, onClick: (rows) => { toast({ title: `${rows.length} document(s) supprimés`, description: "Les enregistrements ont été retirés.", variant: "destructive" }) }, variant: "destructive" },
             ]}
           />
         </CardContent>

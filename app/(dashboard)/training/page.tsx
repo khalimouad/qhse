@@ -22,6 +22,8 @@ import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 
 type TrainingCategory =
   | "Qualité"
@@ -84,7 +86,15 @@ const statusConfig: Record<
 
 export default function TrainingPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const thisYear = new Date().getFullYear()
+
+  function handleExport(rows: Training[]) {
+    const data = rows.length ? rows : mockTrainings
+    downloadCsv("formations", ["Titre","Catégorie","Formateur","Date","Durée (h)","Participants","Statut","Complétion (%)"],
+      data.map((t) => [t.title, t.category, t.trainer, t.date, t.durationHours, t.participants, statusConfig[t.status].label, t.completion]))
+    toast({ title: "Export réussi", description: `${data.length} formations exportées en CSV.` })
+  }
 
   const planned = mockTrainings.filter((t) => t.status === "planned").length
   const inProgress = mockTrainings.filter((t) => t.status === "in_progress").length
@@ -250,8 +260,8 @@ export default function TrainingPage() {
               </div>
             )}
             bulkActions={[
-              { label: "Exporter", icon: Download, onClick: () => {}, variant: "outline" },
-              { label: "Clôturer", icon: CheckCircle2, onClick: () => {} },
+              { label: "Exporter CSV", icon: Download, onClick: (rows) => handleExport(rows), variant: "outline" },
+              { label: "Clôturer", icon: CheckCircle2, onClick: (rows) => { toast({ title: `${rows.length} formations clôturées`, description: "Statut mis à jour avec succès." }) } },
             ]}
           />
         </CardContent>

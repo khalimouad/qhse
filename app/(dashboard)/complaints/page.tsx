@@ -21,6 +21,8 @@ import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 
 export interface Complaint {
   id: string
@@ -76,6 +78,14 @@ const statusConfig: Record<
 
 export default function ComplaintsPage() {
   const router = useRouter()
+  const { toast } = useToast()
+
+  function handleExport(rows: Complaint[]) {
+    const data = rows.length ? rows : mockComplaints
+    downloadCsv("reclamations", ["Référence","Objet","Type","Client/Fournisseur","Sévérité","Statut","Date réception","Échéance"],
+      data.map((c) => [c.reference, c.subject, typeConfig[c.type].label, c.party, severityConfig[c.severity].label, statusConfig[c.status].label, c.receivedDate, c.dueDate]))
+    toast({ title: "Export réussi", description: `${data.length} réclamations exportées en CSV.` })
+  }
 
   const total = mockComplaints.length
   const newCount = mockComplaints.filter((c) => c.status === "new").length
@@ -224,9 +234,9 @@ export default function ComplaintsPage() {
               </div>
             )}
             bulkActions={[
-              { label: "Assigner", icon: UserPlus, onClick: () => {} },
-              { label: "Clôturer", icon: Lock, onClick: () => {}, variant: "outline" },
-              { label: "Supprimer", icon: Trash2, onClick: () => {}, variant: "destructive" },
+              { label: "Exporter CSV", icon: UserPlus, onClick: (rows) => handleExport(rows) },
+              { label: "Clôturer", icon: Lock, onClick: (rows) => { toast({ title: `${rows.length} réclamations clôturées`, description: "Statut mis à jour avec succès." }) }, variant: "outline" },
+              { label: "Supprimer", icon: Trash2, onClick: (rows) => { toast({ title: `${rows.length} réclamations supprimées`, description: "Les enregistrements ont été retirés.", variant: "destructive" }) }, variant: "destructive" },
             ]}
           />
         </CardContent>

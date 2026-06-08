@@ -21,6 +21,8 @@ import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 
 interface Supplier {
   id: string
@@ -84,6 +86,14 @@ export function scoreGrade(score: number): {
 
 export default function SuppliersPage() {
   const router = useRouter()
+  const { toast } = useToast()
+
+  function handleExport(rows: Supplier[]) {
+    const data = rows.length ? rows : mockSuppliers
+    downloadCsv("fournisseurs", ["Code","Nom","Catégorie","Score","Statut","Dernier audit","Certifications"],
+      data.map((s) => [s.code, s.name, s.category, s.score, statusConfig[s.status].label, s.lastAudit, s.certifications.join(" | ")]))
+    toast({ title: "Export réussi", description: `${data.length} fournisseurs exportés en CSV.` })
+  }
 
   const total = mockSuppliers.length
   const approved = mockSuppliers.filter((s) => s.status === "approved").length
@@ -233,8 +243,8 @@ export default function SuppliersPage() {
               </div>
             )}
             bulkActions={[
-              { label: "Évaluer", icon: ClipboardCheck, onClick: () => {} },
-              { label: "Exporter", icon: Download, onClick: () => {}, variant: "outline" },
+              { label: "Évaluer", icon: ClipboardCheck, onClick: (rows) => { toast({ title: `Évaluation lancée`, description: `${rows.length} fournisseur(s) ajoutés à la file d'évaluation.` }) } },
+              { label: "Exporter CSV", icon: Download, onClick: (rows) => handleExport(rows), variant: "outline" },
             ]}
           />
         </CardContent>

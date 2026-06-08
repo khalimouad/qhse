@@ -21,6 +21,8 @@ import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { useToast } from "@/components/ui/use-toast"
+import { downloadCsv } from "@/lib/csv"
 
 interface Audit {
   id: string
@@ -79,6 +81,14 @@ const statusVariant: Record<Audit["status"], "outline" | "warning" | "success" |
 
 export default function AuditsPage() {
   const router = useRouter()
+  const { toast } = useToast()
+
+  function handleExport(rows: Audit[]) {
+    const data = rows.length ? rows : mockAudits
+    downloadCsv("audits", ["Référence","Titre","Type","Statut","Champ","Auditeur","Date","Écarts"],
+      data.map((a) => [a.reference, a.title, typeLabels[a.type], statusLabels[a.status], a.scope, a.auditor, a.date, a.findings]))
+    toast({ title: "Export réussi", description: `${data.length} audits exportés en CSV.` })
+  }
 
   const total = mockAudits.length
   const planned = mockAudits.filter((a) => a.status === "planned").length
@@ -214,8 +224,8 @@ export default function AuditsPage() {
               </div>
             )}
             bulkActions={[
-              { label: "Exporter", icon: Download, onClick: () => {}, variant: "outline" },
-              { label: "Supprimer", icon: Trash2, onClick: () => {}, variant: "destructive" },
+              { label: "Exporter CSV", icon: Download, onClick: (rows) => handleExport(rows), variant: "outline" },
+              { label: "Supprimer", icon: Trash2, onClick: (rows) => { toast({ title: `${rows.length} audits supprimés`, description: "Les enregistrements ont été retirés.", variant: "destructive" }) }, variant: "destructive" },
             ]}
             emptyMessage="Aucun audit."
           />
