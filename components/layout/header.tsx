@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   Bell, LogOut, User, Settings, Menu, Shield,
   AlertTriangle, CheckSquare, ClipboardList, FileText,
-  Clock, CheckCheck, X,
+  Clock, CheckCheck, X, Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -19,6 +19,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { TopNav } from "@/components/layout/top-nav"
+import { cn } from "@/lib/utils"
 
 const mockNotifications = [
   {
@@ -64,12 +66,13 @@ const mockNotifications = [
 ]
 
 interface HeaderProps {
-  title: string
   userEmail?: string
   onMenuToggle?: () => void
+  aiOpen?: boolean
+  onAiToggle?: () => void
 }
 
-export function Header({ title, userEmail = "admin@qhse.fr", onMenuToggle }: HeaderProps) {
+export function Header({ userEmail = "admin@qhse.fr", onMenuToggle, aiOpen = false, onAiToggle }: HeaderProps) {
   const router = useRouter()
   const [notifications, setNotifications] = useState(mockNotifications)
   const [notifOpen, setNotifOpen] = useState(false)
@@ -83,25 +86,43 @@ export function Header({ title, userEmail = "admin@qhse.fr", onMenuToggle }: Hea
   const initials = userEmail.substring(0, 2).toUpperCase()
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b bg-white/95 backdrop-blur-sm px-4 md:h-16 md:px-6">
-      {/* Left */}
-      <div className="flex items-center gap-3 min-w-0">
+    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b bg-white/95 px-4 backdrop-blur-sm md:h-16 md:px-6">
+      {/* Left: hamburger (mobile) + logo + horizontal nav (desktop) */}
+      <div className="flex min-w-0 flex-1 items-center gap-3 self-stretch">
         <button
           onClick={onMenuToggle}
-          className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 md:hidden"
+          className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 lg:hidden"
           aria-label="Menu"
         >
           <Menu className="h-5 w-5" />
         </button>
-        <div className="flex items-center gap-2 md:hidden">
-          <Shield className="h-6 w-6 text-blue-600 shrink-0" />
-          <span className="text-base font-bold text-gray-900">QualiSafe</span>
+        <Link href="/" className="flex items-center gap-2">
+          <Shield className="h-7 w-7 shrink-0 text-blue-600" />
+          <span className="text-base font-bold text-gray-900 md:text-lg">QualiSafe</span>
+        </Link>
+        <div className="ml-2 hidden self-stretch lg:block">
+          <TopNav />
         </div>
-        <h1 className="hidden text-xl font-semibold text-gray-900 md:block truncate">{title}</h1>
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-1.5 md:gap-3">
+      <div className="flex items-center gap-1.5 md:gap-2">
+        {/* AI assistant toggle */}
+        <Button
+          variant={aiOpen ? "default" : "outline"}
+          size="sm"
+          onClick={onAiToggle}
+          className={cn(
+            "h-9 gap-1.5 rounded-lg",
+            aiOpen
+              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
+              : "border-blue-200 text-blue-700 hover:bg-blue-50"
+          )}
+        >
+          <Sparkles className="h-4 w-4" />
+          <span className="hidden md:inline">Assistant IA</span>
+        </Button>
+
         {/* Notifications */}
         <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>
           <DropdownMenuTrigger asChild>
@@ -206,7 +227,7 @@ export function Header({ title, userEmail = "admin@qhse.fr", onMenuToggle }: Hea
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <span className="hidden text-sm font-medium text-gray-700 md:block">{userEmail}</span>
+              <span className="hidden text-sm font-medium text-gray-700 xl:block">{userEmail}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">

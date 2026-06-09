@@ -1,74 +1,31 @@
 "use client"
 
 import { useState } from "react"
-import { usePathname } from "next/navigation"
-import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
+import { MobileNavDrawer } from "@/components/layout/mobile-nav-drawer"
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
-
-const pageTitles: Record<string, string> = {
-  "/": "Tableau de bord",
-  "/documents": "Documents",
-  "/documents/new": "Nouveau document",
-  "/non-conformances": "Non-Conformités",
-  "/non-conformances/new": "Nouvelle NC",
-  "/capa": "CAPA",
-  "/capa/new": "Nouvelle CAPA",
-  "/audits": "Audits",
-  "/audits/new": "Planifier un audit",
-  "/risks": "Registre des Risques",
-  "/indicators": "Indicateurs",
-  "/action-plan": "Plan d'actions",
-  "/complaints": "Réclamations",
-  "/complaints/new": "Nouvelle Réclamation",
-  "/suppliers": "Fournisseurs",
-  "/suppliers/new": "Nouveau Fournisseur",
-  "/training": "Formations",
-  "/training/new": "Nouvelle Formation",
-  "/equipment": "Équipements",
-  "/equipment/new": "Nouvel Équipement",
-  "/profile": "Mon profil",
-  "/settings": "Paramètres",
-  "/notifications": "Notifications",
-  "/documents/generate": "Générer un document",
-}
-
-function getTitle(pathname: string): string {
-  if (pageTitles[pathname]) return pageTitles[pathname]
-  if (pathname.startsWith("/documents/")) return "Détail Document"
-  if (pathname.startsWith("/non-conformances/")) return "Détail NC"
-  if (pathname.startsWith("/capa/")) return "Détail CAPA"
-  if (pathname.startsWith("/audits/")) return "Détail Audit"
-  if (pathname.startsWith("/complaints/")) return "Détail Réclamation"
-  if (pathname.startsWith("/suppliers/")) return "Détail Fournisseur"
-  if (pathname.startsWith("/training/")) return "Détail Formation"
-  if (pathname.startsWith("/equipment/")) return "Détail Équipement"
-  if (pathname.startsWith("/risks/")) return "Détail Risque"
-  return "QHSE"
-}
+import { AiAssistant } from "@/components/layout/ai-assistant"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
-  const title = getTitle(pathname)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar
-        mobileOpen={mobileSidebarOpen}
-        onMobileClose={() => setMobileSidebarOpen(false)}
+    <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
+      <Header
+        userEmail="admin@qhse.fr"
+        onMenuToggle={() => setMobileNavOpen(true)}
+        aiOpen={aiOpen}
+        onAiToggle={() => setAiOpen((v) => !v)}
       />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header
-          title={title}
-          userEmail="admin@qhse.fr"
-          onMenuToggle={() => setMobileSidebarOpen(true)}
-        />
+      <div className="flex flex-1 overflow-hidden">
         {/* Extra bottom padding on mobile for the bottom nav bar */}
         <main className="flex-1 overflow-y-auto p-4 pb-24 md:p-6 md:pb-6">
           {children}
         </main>
+        <AiAssistant open={aiOpen} onClose={() => setAiOpen(false)} />
       </div>
+      <MobileNavDrawer open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <MobileBottomNav />
     </div>
   )
