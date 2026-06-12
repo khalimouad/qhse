@@ -5,7 +5,6 @@ import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { downloadCsv } from "@/lib/csv"
 
 type ProcessType = "Management" | "Réalisation" | "Support"

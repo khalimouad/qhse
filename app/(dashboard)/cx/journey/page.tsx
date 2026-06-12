@@ -1,6 +1,6 @@
 "use client"
 
-import { Map, Users, Star, AlertTriangle, CheckCircle2 } from "lucide-react"
+import { Map, Users, AlertTriangle, CheckCircle2 } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"

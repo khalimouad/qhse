@@ -188,8 +188,8 @@ export default function EnvEmergencyPage() {
               </div>
             ))}
             <div className="rounded-lg border border-gray-100 bg-gray-50 p-3 text-xs text-gray-500">
-              Le Plan d'Opération Interne (POI) doit être révisé après chaque exercice.
-              Conformité réglementaire : Art. R. 515-86 Code de l'environnement.
+              Le Plan d&apos;Opération Interne (POI) doit être révisé après chaque exercice.
+              Conformité réglementaire : Art. R. 515-86 Code de l&apos;environnement.
             </div>
           </CardContent>
         </Card>

@@ -49,12 +49,13 @@ export default function DiagnosticWizardPage() {
     try {
       const saved = localStorage.getItem(`diag_scores_${config.id}`)
       const parsed = saved ? (JSON.parse(saved) as Record<string, number>) : {}
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable client-side after mount
       setScores({ ...baseline, ...parsed })
     } catch {
       setScores(baseline)
     }
     setInitialized(true)
-  }, [config?.id, initialized])
+  }, [config, initialized])
 
   useEffect(() => {
     if (!initialized || Object.keys(scores).length === 0) return

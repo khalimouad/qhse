@@ -42,6 +42,7 @@ export default function FrameworkDetailPage() {
     try {
       const saved = localStorage.getItem(`diag_scores_${config.id}`)
       if (saved) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable client-side after mount
         setScores({ ...baseline, ...JSON.parse(saved) })
       } else {
         setScores(baseline)
@@ -49,7 +50,7 @@ export default function FrameworkDetailPage() {
     } catch {
       setScores(baseline)
     }
-  }, [config?.id])
+  }, [config])
 
   if (!config) {
     return (
@@ -71,7 +72,11 @@ export default function FrameworkDetailPage() {
   const toggleDim = (id: string) => {
     setOpenDims((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
       return next
     })
   }

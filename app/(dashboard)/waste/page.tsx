@@ -126,7 +126,6 @@ export default function WastePage() {
     const coutTotal = w.coutKg * w.volumeYtd * (w.unite === "L" ? 0.85 : 1)
     return s + coutTotal
   }, 0)
-  const bsdOk = wastes.filter((w) => !w.bsdDem || w.bsdDem).length
 
   return (
     <div className="space-y-6">

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Users2, CalendarDays, CheckCircle2, Clock, TrendingUp, BookOpen, Brain, ChevronRight } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {

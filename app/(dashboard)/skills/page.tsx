@@ -1,11 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Award, Users, BadgeCheck, AlertTriangle, BarChart2, Search, Filter } from "lucide-react"
+import { Award, Users, BadgeCheck, AlertTriangle, BarChart2, Search } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
@@ -35,14 +34,6 @@ const expertiseData: ExpertiseRow[] = [
   { id: 9, expertise: "Pilotage des indicateurs de performance (KPI)", domaine: "Management", porteurPrincipal: "Claire Dubois", nbPorteurs: 3, niveau: 3, criticite: "Sensible", risqueDepart: true, actionCapitalisation: "Dashboard automatisé" },
   { id: 10, expertise: "Revue de direction et reporting QHSE", domaine: "Management", porteurPrincipal: "Thomas Laurent", nbPorteurs: 2, niveau: 5, criticite: "Critique", risqueDepart: false, actionCapitalisation: "Procédure annuelle formalisée" },
 ]
-
-const LEVEL_LABELS: Record<number, string> = {
-  1: "N1 — Sensibilisé",
-  2: "N2 — Praticien",
-  3: "N3 — Autonome",
-  4: "N4 — Expert",
-  5: "N5 — Référent",
-}
 
 const CRITICALITY_COLORS: Record<Criticality, string> = {
   "Critique": "bg-red-100 text-red-700 border-red-200",

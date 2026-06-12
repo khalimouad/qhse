@@ -4,7 +4,6 @@ import { ShieldCheck, FileText, AlertOctagon, Building2, Truck, Download, Calend
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable, DataTableColumn, DataTableFilter } from "@/components/ui/data-table"
 import { downloadCsv } from "@/lib/csv"

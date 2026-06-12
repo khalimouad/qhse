@@ -140,7 +140,7 @@ export default function EmergencyTestsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-semibold">Actions d'amélioration identifiées</CardTitle>
+            <CardTitle className="text-base font-semibold">Actions d&apos;amélioration identifiées</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -159,7 +159,7 @@ export default function EmergencyTestsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Registre des exercices d'urgence</CardTitle>
+          <CardTitle className="text-base font-semibold">Registre des exercices d&apos;urgence</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <DataTable

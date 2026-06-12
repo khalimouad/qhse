@@ -1,10 +1,9 @@
 "use client"
 
-import { MapPin, CalendarDays, CheckCircle2, Eye, ClipboardList, Download, ChevronRight } from "lucide-react"
+import { MapPin, CalendarDays, CheckCircle2, Eye, ClipboardList, Download } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { DataTable, DataTableColumn, DataTableFilter } from "@/components/ui/data-table"

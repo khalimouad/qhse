@@ -1,11 +1,9 @@
 "use client"
 
-import { useState } from "react"
 import { AlertCircle, HardHat, Bell, TrendingDown, BedDouble, Download } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable, DataTableColumn, DataTableFilter } from "@/components/ui/data-table"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
@@ -123,8 +121,6 @@ const filters: DataTableFilter[] = [
 ]
 
 export default function IncidentsPage() {
-  const [_selected, setSelected] = useState<Incident[]>([])
-
   const accidents = incidents.filter((i) => i.type.startsWith("Accident")).length
   const joursTotal = incidents.reduce((s, i) => s + i.joursPerdu, 0)
   const heuresExposition = 185000
@@ -218,7 +214,6 @@ export default function IncidentsPage() {
             searchAccessor={(r) => `${r.id} ${r.type} ${r.lieu} ${r.personne} ${r.causeRacine}`}
             filters={filters}
             pageSize={10}
-            bulkActions={[{ label: "Sélection", onClick: setSelected }]}
           />
         </CardContent>
       </Card>

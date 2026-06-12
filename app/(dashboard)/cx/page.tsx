@@ -12,7 +12,6 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine, Legend,
 } from "recharts"
 import { DiagnosticRadar } from "@/components/diagnostics/radar-chart"
-import { MaturityBadge } from "@/components/diagnostics/maturity-badge"
 import { cxConfig } from "@/lib/diagnostics/cx-config"
 import { extractBaselineScores, computeFrameworkScore, toRadarData } from "@/lib/diagnostics/scoring"
 import { getMaturityLevel } from "@/lib/diagnostics/types"

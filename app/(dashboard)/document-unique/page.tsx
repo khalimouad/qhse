@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { ShieldCheck, LayoutGrid, AlertTriangle, ClipboardList, CalendarCheck, Download } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
@@ -127,7 +126,6 @@ const filters: DataTableFilter[] = [
 
 export default function DocumentUniquePage() {
   const inacceptables = risks.filter((r) => r.criticiteLabel === "Inacceptable").length
-  const enCours = risks.filter((r) => r.maitrise === "En cours").length
   const actions = risks.filter((r) => r.maitrise !== "Maîtrisé").length
 
   return (
@@ -207,7 +205,7 @@ export default function DocumentUniquePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Registre d'évaluation des risques professionnels</CardTitle>
+          <CardTitle className="text-base font-semibold">Registre d&apos;évaluation des risques professionnels</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <DataTable

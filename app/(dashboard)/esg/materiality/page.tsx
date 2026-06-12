@@ -1,10 +1,9 @@
 "use client"
 
-import { GitMerge, AlertTriangle, TrendingUp, Users, Leaf } from "lucide-react"
+import { GitMerge, AlertTriangle, TrendingUp, Users } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 
 const materialTopics = [
   { topic: "Changement climatique (GES)", impactScore: 4.8, financialScore: 4.5, pillar: "E", priority: "critical" },

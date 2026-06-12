@@ -166,7 +166,7 @@ export default function EnvChemicalPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Registre des substances dangereuses pour l'environnement</CardTitle>
+          <CardTitle className="text-base font-semibold">Registre des substances dangereuses pour l&apos;environnement</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <DataTable

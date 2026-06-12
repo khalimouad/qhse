@@ -32,7 +32,6 @@ export function GapAnalysisTable({
   items,
   maxScore,
   frameworkId,
-  threshold: _threshold,
 }: GapAnalysisTableProps) {
   const gapItems: GapItem[] = items.map((item) => ({
     ...item,
