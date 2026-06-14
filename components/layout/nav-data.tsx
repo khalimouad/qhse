@@ -36,6 +36,7 @@ import {
   UtensilsCrossed,
   Scale,
   Brain,
+  LifeBuoy,
 } from "lucide-react"
 
 export interface NavItem {
@@ -162,6 +163,26 @@ export const navGroups: NavGroup[] = [
       { name: "Émissions GES (Scope 1/2/3)", href: "/esg/ghg", icon: BarChart2 },
       { name: "Matérialité double", href: "/esg/materiality", icon: GitMerge },
       { name: "Rapport CSRD", href: "/esg/report", icon: FileText },
+    ],
+  },
+  {
+    title: "Accompagnant Qualité",
+    subtitle: "Guide HLS multi-normes ISO 9001 / 14001 / 45001 / 27001 / 37001 / FSSC",
+    icon: LifeBuoy,
+    iconColor: "text-cyan-600",
+    iconBg: "bg-cyan-50",
+    items: [
+      { name: "Vue d'ensemble", href: "/accompagnement", icon: BookOpen },
+      { name: "1 · Domaine d'application", href: "/accompagnement/ch1", icon: LifeBuoy },
+      { name: "2 · Références normatives", href: "/accompagnement/ch2", icon: LifeBuoy },
+      { name: "3 · Termes et définitions", href: "/accompagnement/ch3", icon: LifeBuoy },
+      { name: "4 · Contexte de l'organisme", href: "/accompagnement/ch4", icon: LifeBuoy },
+      { name: "5 · Leadership", href: "/accompagnement/ch5", icon: LifeBuoy },
+      { name: "6 · Planification", href: "/accompagnement/ch6", icon: LifeBuoy },
+      { name: "7 · Support", href: "/accompagnement/ch7", icon: LifeBuoy },
+      { name: "8 · Réalisation opérationnelle", href: "/accompagnement/ch8", icon: LifeBuoy },
+      { name: "9 · Évaluation des performances", href: "/accompagnement/ch9", icon: LifeBuoy },
+      { name: "10 · Amélioration", href: "/accompagnement/ch10", icon: LifeBuoy },
     ],
   },
 ]
