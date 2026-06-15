@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   ArrowLeft, User, Mail, Phone, Building2, Shield,
@@ -8,6 +8,27 @@ import {
   AlertTriangle, CheckSquare, ClipboardList, FileText,
   Clock,
 } from "lucide-react"
+import { loadMerged, saveState } from "@/lib/storage"
+
+const STORAGE_KEY = "qhse_profile"
+
+interface ProfileForm {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  department: string
+  role: string
+}
+
+const DEFAULT_FORM: ProfileForm = {
+  firstName: "Admin",
+  lastName: "QHSE",
+  email: "admin@qhse.fr",
+  phone: "+33 6 12 34 56 78",
+  department: "Qualité & HSE",
+  role: "Responsable QSE",
+}
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,7 +36,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
 
 const mockActivity = [
   { id: 1, type: "nc",    icon: AlertTriangle, color: "bg-red-100 text-red-600",      title: "NC-2026-023 créée",                time: "Il y a 2 h"   },
@@ -43,18 +63,17 @@ export default function ProfilePage() {
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
-  const [form, setForm] = useState({
-    firstName: "Admin",
-    lastName: "QHSE",
-    email: "admin@qhse.fr",
-    phone: "+33 6 12 34 56 78",
-    department: "Qualité & HSE",
-    role: "Responsable QSE",
-  })
+  const [form, setForm] = useState<ProfileForm>(DEFAULT_FORM)
 
   const [pw, setPw] = useState({ current: "", newPw: "", confirm: "" })
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable client-side after mount
+    setForm(loadMerged<ProfileForm>(STORAGE_KEY, DEFAULT_FORM))
+  }, [])
+
   const handleSave = () => {
+    saveState<ProfileForm>(STORAGE_KEY, form)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
@@ -81,7 +100,9 @@ export default function ProfilePage() {
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
             <div className="relative shrink-0">
               <Avatar className="h-20 w-20">
-                <AvatarFallback className="bg-blue-600 text-white text-2xl font-bold">AD</AvatarFallback>
+                <AvatarFallback className="bg-blue-600 text-white text-2xl font-bold">
+                  {`${form.firstName.charAt(0)}${form.lastName.charAt(0)}`.toUpperCase() || "AD"}
+                </AvatarFallback>
               </Avatar>
               <button className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md border border-gray-200 text-gray-500 hover:text-blue-600 transition-colors">
                 <Camera className="h-3.5 w-3.5" />

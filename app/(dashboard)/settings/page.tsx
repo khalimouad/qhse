@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
-  ArrowLeft, Settings, Globe, Bell, LayoutDashboard,
+  ArrowLeft, Settings, Bell, LayoutDashboard,
   CheckCircle2, AlertTriangle, CheckSquare, ClipboardList,
   FileText, MessageSquareWarning, Truck, GraduationCap,
-  Wrench, ShieldAlert, Sun, Monitor,
+  Wrench, ShieldAlert, Sun, Monitor, X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +14,20 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { loadMerged, saveState } from "@/lib/storage"
+
+const STORAGE_KEY = "qhse_settings"
+
+interface SettingsState {
+  general: { company: string; timezone: string; language: string; dateFormat: string; fiscalYear: string }
+  certifications: string[]
+  notifEmail: Record<string, boolean>
+  notifPush: Record<string, boolean>
+  moduleEnabled: Record<string, boolean>
+  theme: "light" | "system"
+  density: "comfortable" | "compact"
+  sidebar: boolean
+}
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
@@ -51,39 +65,76 @@ const modules = [
   { key: "equipment",       label: "Équipements",       icon: Wrench,               color: "bg-slate-50 text-slate-600"   },
 ]
 
-export default function SettingsPage() {
-  const router = useRouter()
-  const [saved, setSaved] = useState(false)
-
-  const [general, setGeneral] = useState({
+const DEFAULT_SETTINGS: SettingsState = {
+  general: {
     company: "Industries QHSE SAS",
     timezone: "Europe/Paris",
     language: "fr",
     dateFormat: "dd/MM/yyyy",
     fiscalYear: "Janvier",
-  })
-
-  const [notifEmail, setNotifEmail] = useState<Record<string, boolean>>({
+  },
+  certifications: ["ISO 9001", "ISO 14001", "ISO 45001", "ISO 50001", "IATF 16949"],
+  notifEmail: {
     nc_created: true, nc_overdue: true, capa_action: true,
     audit_remind: true, doc_expiry: false, complaint: true, supplier_eval: false,
-  })
-
-  const [notifPush, setNotifPush] = useState<Record<string, boolean>>({
+  },
+  notifPush: {
     nc_created: true, nc_overdue: false, capa_action: true,
     audit_remind: false, doc_expiry: false, complaint: true, supplier_eval: false,
-  })
+  },
+  moduleEnabled: Object.fromEntries(modules.map((m) => [m.key, true])),
+  theme: "light",
+  density: "comfortable",
+  sidebar: true,
+}
 
-  const [moduleEnabled, setModuleEnabled] = useState<Record<string, boolean>>(
-    Object.fromEntries(modules.map((m) => [m.key, true]))
-  )
+export default function SettingsPage() {
+  const router = useRouter()
+  const [saved, setSaved] = useState(false)
 
-  const [theme, setTheme] = useState<"light" | "system">("light")
-  const [density, setDensity] = useState<"comfortable" | "compact">("comfortable")
-  const [sidebar, setSidebar] = useState(true)
+  const [general, setGeneral] = useState(DEFAULT_SETTINGS.general)
+  const [certifications, setCertifications] = useState<string[]>(DEFAULT_SETTINGS.certifications)
+  const [newCert, setNewCert] = useState("")
+  const [addingCert, setAddingCert] = useState(false)
+  const [notifEmail, setNotifEmail] = useState<Record<string, boolean>>(DEFAULT_SETTINGS.notifEmail)
+  const [notifPush, setNotifPush] = useState<Record<string, boolean>>(DEFAULT_SETTINGS.notifPush)
+  const [moduleEnabled, setModuleEnabled] = useState<Record<string, boolean>>(DEFAULT_SETTINGS.moduleEnabled)
+  const [theme, setTheme] = useState<"light" | "system">(DEFAULT_SETTINGS.theme)
+  const [density, setDensity] = useState<"comfortable" | "compact">(DEFAULT_SETTINGS.density)
+  const [sidebar, setSidebar] = useState(DEFAULT_SETTINGS.sidebar)
+
+  useEffect(() => {
+    const s = loadMerged<SettingsState>(STORAGE_KEY, DEFAULT_SETTINGS)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable client-side after mount
+    setGeneral(s.general)
+    setCertifications(s.certifications)
+    setNotifEmail(s.notifEmail)
+    setNotifPush(s.notifPush)
+    setModuleEnabled(s.moduleEnabled)
+    setTheme(s.theme)
+    setDensity(s.density)
+    setSidebar(s.sidebar)
+  }, [])
 
   const handleSave = () => {
+    saveState<SettingsState>(STORAGE_KEY, {
+      general, certifications, notifEmail, notifPush, moduleEnabled, theme, density, sidebar,
+    })
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
+  }
+
+  const addCert = () => {
+    const v = newCert.trim()
+    if (v && !certifications.includes(v)) {
+      setCertifications([...certifications, v])
+    }
+    setNewCert("")
+    setAddingCert(false)
+  }
+
+  const removeCert = (cert: string) => {
+    setCertifications(certifications.filter((c) => c !== cert))
   }
 
   return (
@@ -111,11 +162,11 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-2 pt-4">
-                <CardTitle className="text-sm font-semibold text-gray-700">Informations de l'entreprise</CardTitle>
+                <CardTitle className="text-sm font-semibold text-gray-700">Informations de l&apos;entreprise</CardTitle>
               </CardHeader>
               <CardContent className="pb-5 space-y-4">
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-gray-600">Nom de l'entreprise</Label>
+                  <Label className="text-xs text-gray-600">Nom de l&apos;entreprise</Label>
                   <Input value={general.company} onChange={(e) => setGeneral({ ...general, company: e.target.value })} className="rounded-xl h-10" />
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -176,18 +227,47 @@ export default function SettingsPage() {
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-2 pt-4">
                 <CardTitle className="text-sm font-semibold text-gray-700">Certifications suivies</CardTitle>
-                <CardDescription className="text-xs">Normes pour lesquelles des alertes d'échéance seront envoyées</CardDescription>
+                <CardDescription className="text-xs">Normes pour lesquelles des alertes d&apos;échéance seront envoyées</CardDescription>
               </CardHeader>
               <CardContent className="pb-5">
-                <div className="flex flex-wrap gap-2">
-                  {["ISO 9001","ISO 14001","ISO 45001","ISO 50001","IATF 16949"].map((cert) => (
-                    <Badge key={cert} variant="outline" className="cursor-pointer select-none border-blue-200 text-blue-700 hover:bg-blue-50">
+                <div className="flex flex-wrap items-center gap-2">
+                  {certifications.map((cert) => (
+                    <Badge key={cert} variant="outline" className="select-none gap-1 border-blue-200 text-blue-700 pr-1">
                       {cert}
+                      <button
+                        type="button"
+                        onClick={() => removeCert(cert)}
+                        className="rounded-full p-0.5 hover:bg-blue-100"
+                        aria-label={`Retirer ${cert}`}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </Badge>
                   ))}
-                  <Badge variant="outline" className="cursor-pointer select-none border-dashed text-gray-400 hover:border-gray-400">
-                    + Ajouter
-                  </Badge>
+                  {addingCert ? (
+                    <span className="inline-flex items-center gap-1">
+                      <Input
+                        autoFocus
+                        value={newCert}
+                        onChange={(e) => setNewCert(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") addCert()
+                          if (e.key === "Escape") { setNewCert(""); setAddingCert(false) }
+                        }}
+                        onBlur={addCert}
+                        placeholder="ISO 27001…"
+                        className="h-7 w-32 rounded-lg text-xs"
+                      />
+                    </span>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      onClick={() => setAddingCert(true)}
+                      className="cursor-pointer select-none border-dashed text-gray-400 hover:border-gray-400"
+                    >
+                      + Ajouter
+                    </Badge>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -301,7 +381,7 @@ export default function SettingsPage() {
 
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-2 pt-4">
-                <CardTitle className="text-sm font-semibold text-gray-700">Densité d'affichage</CardTitle>
+                <CardTitle className="text-sm font-semibold text-gray-700">Densité d&apos;affichage</CardTitle>
               </CardHeader>
               <CardContent className="pb-5 space-y-2">
                 {[
